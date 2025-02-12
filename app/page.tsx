@@ -1,9 +1,10 @@
 "use client";
 
+import CharacterCard from "@/components/CharacterCard/CharacterCard";
 import Spinner from "@/components/Spinner";
 import { useEffect, useState } from "react";
 
-export interface StarWarsCharacter {
+interface StarWarsCharacter {
   name: string;
   height: string;
   mass: string;
@@ -65,9 +66,9 @@ export default function Home() {
         {showSpinner && <Spinner />}
         {error
           ? <p className="text-red-500">{error}</p>
-          : <ul>
-            {people.map(character => <li key={character.name}>{character.name}</li>)}
-          </ul>
+          : <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
+            {people.map(character => <CharacterCard key={character.name} name={character.name} />)}
+          </div>
         }
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
