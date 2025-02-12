@@ -67,7 +67,7 @@ export default function Home() {
         {error
           ? <p className="text-red-500">{error}</p>
           : <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
-            {people.map(character => <CharacterCard key={character.name} name={character.name} />)}
+            {people.map(character => <CharacterCard key={character.name} name={character.name} species={character.species} />)}
           </div>
         }
       </main>
