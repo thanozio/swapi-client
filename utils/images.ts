@@ -10,7 +10,16 @@ import image9 from "@/public/cards/9.jpg";
 import image10 from "@/public/cards/10.jpg";
 
 const images = [
-  image1, image2, image3, image4, image5, image6, image7, image8, image9, image10
+  image1,
+  image2,
+  image3,
+  image4,
+  image5,
+  image6,
+  image7,
+  image8,
+  image9,
+  image10,
 ];
 
 export default images;

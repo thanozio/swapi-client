@@ -57,21 +57,16 @@ const speciesColors = new Map([
   ["Muun", "border-slate-500"],
   ["Togruta", "border-red-500"],
   ["Kaleesh", "border-amber-700"],
-  ["Pau'an", "border-gray-900"]
+  ["Pau'an", "border-gray-900"],
 ]);
 
 function CharacterModalData({ character }: { character: StarWarsCharacter }) {
-  const [homeworldData, setHomeworldData] = useState<HomeworldData | null>(null);
+  const [homeworldData, setHomeworldData] = useState<HomeworldData | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
-  const {
-    name,
-    height,
-    birth_year,
-    mass,
-    created,
-    films,
-    homeworld,
-  } = character;
+  const { name, height, birth_year, mass, created, films, homeworld } =
+    character;
 
   useEffect(() => {
     async function getSpecies() {
@@ -100,12 +95,15 @@ function CharacterModalData({ character }: { character: StarWarsCharacter }) {
   return (
     <div className="w-auto flex flex-col gap-10">
       <div>
-      <h2>Name: {name}</h2>
-      <p>Height: {Number(height) / 100} m</p>
-      <p>Mass: {mass} kg.</p>
-      <p>Birth year: {birth_year}</p>
-      <p>Number of films: {films.length}</p>
-      <p>Created: {new Date(created).toLocaleDateString("el-gr").replace(/\//g, "-")}</p>
+        <h2>Name: {name}</h2>
+        <p>Height: {Number(height) / 100} m</p>
+        <p>Mass: {mass} kg.</p>
+        <p>Birth year: {birth_year}</p>
+        <p>Number of films: {films.length}</p>
+        <p>
+          Created:{" "}
+          {new Date(created).toLocaleDateString("el-gr").replace(/\//g, "-")}
+        </p>
       </div>
       <hr />
       <div>
@@ -113,17 +111,26 @@ function CharacterModalData({ character }: { character: StarWarsCharacter }) {
         <p>Name: {homeworldData?.name}</p>
         <p>Terrain: {homeworldData?.terrain}</p>
         <p>Climate: {homeworldData?.climate}</p>
-        <p>Population: {Number(homeworldData?.population).toLocaleString("el-gr")}</p>
+        <p>
+          Population:{" "}
+          {Number(homeworldData?.population).toLocaleString("el-gr")}
+        </p>
       </div>
+      {error ?? <h2 className="text-red-500">Could not fetch data</h2>}
     </div>
   );
 }
 
-export default function CharacterCard({ character }: { character: StarWarsCharacter }) {
+export default function CharacterCard({
+  character,
+}: {
+  character: StarWarsCharacter;
+}) {
   // default is "Human", for when the API returns an empty array
   const [speciesName, setSpeciesName] = useState<string>("Human");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const currentImage = characterImages[Math.floor(Math.random() * characterImages.length)];
+  const currentImage =
+    characterImages[Math.floor(Math.random() * characterImages.length)];
   const [error, setError] = useState<string | null>(null);
 
   const { name, species } = character;
@@ -155,17 +162,20 @@ export default function CharacterCard({ character }: { character: StarWarsCharac
 
   return (
     <>
-      {error
-        ? <h2>Could not fetch data</h2>
-        : <>
+      {error ? (
+        <h2 className="text-red-500">Could not fetch data</h2>
+      ) : (
+        <>
           <div
-            className={`text-center w-max-200 h-max-300 ${speciesColors.get(speciesName)} border-4 rounded-lg transition duration-300 ease-in-out hover:scale-110`}
+            className={`text-center w-max-200 h-max-300 ${speciesColors.get(
+              speciesName
+            )} border-4 rounded-lg transition duration-300 ease-in-out hover:scale-110`}
             onClick={() => setIsModalOpen(true)}
           >
             <h2>{name}</h2>
             <Image
               // I'd use this but they cache images aggressively, and ends up
-              // showing the same image multiple times! 
+              // showing the same image multiple times!
               // I'd rather grow the bundle size a bit by importing local images
               // src={"https://picsum.photos/200/300/?random"}
               src={currentImage}
@@ -177,12 +187,15 @@ export default function CharacterCard({ character }: { character: StarWarsCharac
           </div>
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
             <CharacterModalData character={character} />
-            <button className="bg-black hover:bg-yellow-300 text-yellow-300 hover:text-black border-yellow-300 p-2 rounded-lg" onClick={() => setIsModalOpen(false)}>
+            <button
+              className="bg-black hover:bg-yellow-300 text-yellow-300 hover:text-black border-yellow-300 p-2 rounded-lg"
+              onClick={() => setIsModalOpen(false)}
+            >
               Close
             </button>
           </Modal>
         </>
-      }
+      )}
     </>
   );
 }
