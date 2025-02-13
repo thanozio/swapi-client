@@ -1,27 +1,10 @@
 "use client";
 
-import CharacterCard from "@/components/CharacterCard/CharacterCard";
+import CharacterCard from "@/components/CharacterCard";
 import Spinner from "@/components/Spinner";
 import { useEffect, useState } from "react";
 
-interface StarWarsCharacter {
-  name: string;
-  height: string;
-  mass: string;
-  hair_color: string;
-  skin_color: string;
-  eye_color: string;
-  birth_year: string;
-  gender: string;
-  homeworld: string;
-  films: string[];
-  species: string[];
-  vehicles: string[];
-  starships: string[];
-  created: Date;
-  edited: Date;
-  url: string;
-}
+import { StarWarsCharacter } from "@/globalTypes";
 
 interface StarWarsApiPeopleResponse {
   count: number;
@@ -64,10 +47,11 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         {showSpinner && <Spinner />}
+        
         {error
           ? <p className="text-red-500">{error}</p>
           : <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
-            {people.map(character => <CharacterCard key={character.name} name={character.name} species={character.species} />)}
+            {people.map(character => <CharacterCard key={character.name} character={character} />)}
           </div>
         }
       </main>
