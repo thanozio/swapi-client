@@ -32,6 +32,9 @@ export default function Home() {
         setPeople(data.results);
       }
       catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        }
         setError("Unable to load data. Check your connection or try again later.");
       }
       finally {

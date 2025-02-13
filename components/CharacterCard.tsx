@@ -74,12 +74,18 @@ export default function CharacterCard({ character }: { character: StarWarsCharac
         const data: SpeciesApiResponse = await res.json();
         setSpeciesName(data.name);
       } catch (error) {
-        setError("Unable to load data. Check your connection or try again later.");
+        if (error instanceof Error) {
+          setError(error.message);
+        } else if (typeof error === "string") {
+          setError(error);
+        } else {
+          setError("Unable to load data. Please try again later.");
+        }
       }
     }
 
     getSpecies();
-  }, []);
+  }, [species]);
 
   return (
     <>
@@ -104,8 +110,7 @@ export default function CharacterCard({ character }: { character: StarWarsCharac
             />
           </div>
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-            <h2>Name: {name}</h2>
-            <p>Species: {speciesColors.get(speciesName)}</p>
+
             <button className="bg-black hover:bg-yellow-300 text-yellow-300 hover:text-black border-yellow-300 p-2 rounded-lg" onClick={() => setIsModalOpen(false)}>
               Close
             </button>
