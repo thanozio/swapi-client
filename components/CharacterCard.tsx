@@ -93,7 +93,7 @@ export default function CharacterCard({ character }: { character: StarWarsCharac
         ? <h2>Could not fetch data</h2>
         : <>
           <div
-            className={`text-center w-max-200 h-max-300 ${speciesColors.get(speciesName)} border-4 rounded-lg transition delay-150 duration-300 ease-in-out hover:scale-110`}
+            className={`text-center w-max-200 h-max-300 ${speciesColors.get(speciesName)} border-4 rounded-lg transition duration-300 ease-in-out hover:scale-110`}
             onClick={() => setIsModalOpen(true)}
           >
             <h2>{name}</h2>
@@ -103,14 +103,13 @@ export default function CharacterCard({ character }: { character: StarWarsCharac
               // I'd rather grow the bundle size a bit by importing local images
               // src={"https://picsum.photos/200/300/?random"}
               src={currentImage}
-              alt={`Picture for ${name}.`}
+              alt={`Picture of ${name}.`}
               width={200}
               height={300}
               priority={true}
             />
           </div>
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-
             <button className="bg-black hover:bg-yellow-300 text-yellow-300 hover:text-black border-yellow-300 p-2 rounded-lg" onClick={() => setIsModalOpen(false)}>
               Close
             </button>
