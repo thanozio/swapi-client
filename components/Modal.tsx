@@ -23,7 +23,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-lg text-black shadow-lg flex flex-col items-start justify-center"
+        className="bg-white p-6 rounded-lg text-black shadow-lg flex flex-col items-center justify-center"
         // Without this, the parent's onClose event will fire (event bubbling)
         onClick={(e) => e.stopPropagation()}
       >
