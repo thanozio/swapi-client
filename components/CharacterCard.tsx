@@ -51,14 +51,16 @@ const speciesColors = new Map([
 
 export default function CharacterCard({
   character,
+  index
 }: {
-  character: StarWarsCharacter;
+  character: StarWarsCharacter,
+  index: number
 }) {
   // default is "Human", for when the API returns an empty array
   const [speciesName, setSpeciesName] = useState<string>("Human");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const currentImage =
-    characterImages[Math.floor(Math.random() * characterImages.length)];
+    characterImages[index];
   const [error, setError] = useState<string | null>(null);
 
   const { name, species } = character;
