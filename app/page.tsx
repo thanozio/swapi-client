@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 import ReactPaginate from "react-paginate";
 
@@ -20,11 +20,12 @@ export default function Home() {
   const [people, setPeople] = useState<StarWarsCharacter[]>([]);
   const [showSpinner, setShowSpinner] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
   const [pageCount, setPageCount] = useState(1);
   const [charFilter, setCharFilter] = useState("");
 
-  const fetchPeople = async (currentPage: number) => {
-    const url = `https://swapi.dev/api/people/?page=${currentPage}${
+  const fetchPeople = async (page = 1) => {
+    const url = `https://swapi.dev/api/people/?page=${page}${
       charFilter !== "" ? `&search=${charFilter}` : ""
     }`;
 
@@ -36,9 +37,7 @@ export default function Home() {
       const data: StarWarsApiPeopleResponse = await res.json();
       setPeople(data.results);
       const newPageCount = Math.ceil(data.count / 10);
-      if (pageCount !== newPageCount) {
-        setPageCount(newPageCount);
-      }
+      setPageCount(newPageCount);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -48,29 +47,35 @@ export default function Home() {
         );
       }
     } finally {
-      if (showSpinner) {
-        setShowSpinner(false);
-      }
+      setShowSpinner(false);
     }
   };
 
   const handlePageClick = async (data: { selected: number }) => {
-    let currentPage = data.selected + 1;
-    await fetchPeople(currentPage);
+    setCurrentPage(data.selected);
+    await fetchPeople(data.selected + 1);
   };
 
   useEffect(() => {
+    setCurrentPage(0);
     let debounceHandler: ReturnType<typeof setTimeout>;
     if (showSpinner) {
-      fetchPeople(1);
+      fetchPeople();
     } else {
-      debounceHandler = setTimeout(() => fetchPeople(1), 1500);
+      debounceHandler = setTimeout(() => {
+        fetchPeople();
+      }, 1500);
     }
 
     return () => {
       clearTimeout(debounceHandler);
     };
   }, [charFilter]);
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setCurrentPage(0);
+    setCharFilter(e.target.value);
+  };
 
   return (
     <div className="flex flex-col h-screen justify-between">
@@ -89,7 +94,7 @@ export default function Home() {
                 placeholder="Enter a character name"
                 value={charFilter}
                 className="text-black pr-2 pl-2"
-                onChange={(e) => setCharFilter(e.target.value)}
+                onChange={handleSearchChange}
               />
             </div>
             <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
@@ -104,10 +109,11 @@ export default function Home() {
             </div>
           </>
         )}
-
+        {/* #TODO reset page after search input */}
         {!showSpinner && (
           <ReactPaginate
             previousLabel={"previous"}
+            forcePage={currentPage}
             nextLabel={"next"}
             breakLabel={"..."}
             pageCount={pageCount}
