@@ -66,7 +66,7 @@ export default function CharacterModalData({ character }: { character: StarWarsC
           {Number(homeworldData?.population).toLocaleString("el-gr")}
         </p>
       </div>
-      {error ?? <h2 className="text-red-500">Could not fetch data</h2>}
+      {error && <h2 className="text-red-500">Could not fetch data</h2>}
     </div>
   );
 }

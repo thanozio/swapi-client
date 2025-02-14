@@ -51,23 +51,22 @@ const speciesColors = new Map([
 
 export default function CharacterCard({
   character,
-  index
+  index,
 }: {
-  character: StarWarsCharacter,
-  index: number
+  character: StarWarsCharacter;
+  index: number;
 }) {
   // default is "Human", for when the API returns an empty array
   const [speciesName, setSpeciesName] = useState<string>("Human");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const currentImage =
-    characterImages[index];
+  const currentImage = characterImages[index];
   const [error, setError] = useState<string | null>(null);
 
   const { name, species } = character;
 
   useEffect(() => {
     async function getSpecies() {
-      if (species.length === 0) return;
+      if (species?.length === 0) return;
       try {
         // leveraging just the first value of the provided array to avoid mixing races up
         const res = await fetch(species[0]);
