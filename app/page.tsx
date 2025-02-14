@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+
 import CharacterCard from "@/components/CharacterCard";
 import Spinner from "@/components/Spinner";
-import { useEffect, useState } from "react";
 
 import { StarWarsCharacter } from "@/globalTypes";
 
@@ -45,8 +47,6 @@ export default function Home() {
     getPeople();
   }, [showSpinner, page]);
 
-  console.log("People:", people);
-
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -57,29 +57,41 @@ export default function Home() {
         ) : (
           <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
             {people.map((character, index) => (
-              <CharacterCard key={character.name} character={character} index={index} />
+              <CharacterCard
+                key={character.name}
+                character={character}
+                index={index}
+              />
             ))}
           </div>
         )}
+        {!error &&
+          <div className="flex justify-center w-full gap-x-5">
+            <button
+              className={`${page > 1 ? "block" : "hidden"}`}
+              onClick={() => {
+                setPage(page - 1);
+                setShowSpinner(true);
+              }}
+            >
+              <ArrowLeftIcon />
+              Previous
+            </button>
+            <p className="bg-slate-400 p-2 rounded-lg">Page {page}</p>
+            <button
+              className={`${page < 8 ? "block" : "hidden"}`}
+              onClick={() => {
+                setPage(page + 1);
+                setShowSpinner(true);
+              }}
+            >
+              <ArrowRightIcon />
+              Next
+            </button>
+          </div>
+        }
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <button
-          onClick={() => {
-            setPage(page - 1);
-            setShowSpinner(true);
-          }}
-        >
-          Previous Page
-        </button>
-        <button
-          onClick={() => {
-            setPage(page + 1);
-            setShowSpinner(true);
-          }}
-        >
-          Next Page
-        </button>
-      </footer>
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"></footer>
     </div>
   );
 }
