@@ -30,15 +30,27 @@ export default function Home() {
 
     try {
       const res = await fetch(url);
-      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(`API Error: ${res.status} - ${res.statusText}`);
+      }
+      const data: StarWarsApiPeopleResponse = await res.json();
       setPeople(data.results);
+      const newPageCount = Math.ceil(data.count / 10);
+      if (pageCount !== newPageCount) {
+        setPageCount(newPageCount);
+      }
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
+      } else {
+        setError(
+          "Unable to load data. Check your connection or try again later."
+        );
       }
-      setError(
-        "Unable to load data. Check your connection or try again later."
-      );
+    } finally {
+      if (showSpinner) {
+        setShowSpinner(false);
+      }
     }
   };
 
@@ -48,37 +60,11 @@ export default function Home() {
   };
 
   useEffect(() => {
-    async function getPeople() {
-      const url = `https://swapi.dev/api/people/?page=1${
-        charFilter !== "" ? `&search=${charFilter}` : ""
-      }`;
-      try {
-        const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error(`API Error: ${res.status} - ${res.statusText}`);
-        }
-
-        const data: StarWarsApiPeopleResponse = await res.json();
-        const counter = Math.ceil(data.count / 10);
-        setPageCount(counter);
-        setPeople(data.results);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
-        }
-        setError(
-          "Unable to load data. Check your connection or try again later."
-        );
-      } finally {
-        setShowSpinner(false);
-      }
-    }
-
     let debounceHandler: ReturnType<typeof setTimeout>;
     if (showSpinner) {
-      getPeople();
+      fetchPeople(1);
     } else {
-      debounceHandler = setTimeout(getPeople, 1500);
+      debounceHandler = setTimeout(() => fetchPeople(1), 1500);
     }
 
     return () => {
@@ -91,7 +77,7 @@ export default function Home() {
       <main className="flex flex-col items-center justify-center gap-10 mt-10">
         <h1>A long time ago in an API far, far away....</h1>
         {showSpinner && <Spinner />}
-        {error && <p className="text-red-500">{error}</p>} 
+        {error && <p className="text-red-500">{error}</p>}
         {!showSpinner && !error && (
           <>
             <div>
