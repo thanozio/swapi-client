@@ -35,9 +35,10 @@ export default function Home() {
         throw new Error(`API Error: ${res.status} - ${res.statusText}`);
       }
       const data: StarWarsApiPeopleResponse = await res.json();
-      setPeople(data.results);
       const newPageCount = Math.ceil(data.count / 10);
+
       setPageCount(newPageCount);
+      setPeople(data.results);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -57,7 +58,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    setCurrentPage(0);
     let debounceHandler: ReturnType<typeof setTimeout>;
     if (showSpinner) {
       fetchPeople();
@@ -122,14 +122,14 @@ export default function Home() {
             onPageChange={handlePageClick}
             containerClassName="flex gap-x-2 mb-4"
             pageClassName="px-3 py-2 border rounded hover:bg-gray-200"
-            pageLinkClassName="text-gray-700"
+            pageLinkClassName="text-white"
             previousClassName="px-3 py-2 border rounded hover:bg-gray-200"
-            previousLinkClassName="text-gray-700"
+            previousLinkClassName="text-white"
             nextClassName="px-3 py-2 border rounded hover:bg-gray-200"
-            nextLinkClassName="text-gray-700"
+            nextLinkClassName="text-white"
             breakClassName="px-3 py-2 border rounded"
-            breakLinkClassName="text-gray-700"
-            activeClassName="bg-yellow-300 text-white"
+            breakLinkClassName="text-white"
+            activeClassName="bg-yellow-300"
           />
         )}
       </main>
