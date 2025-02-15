@@ -64,7 +64,7 @@ export default function Home() {
     } else {
       debounceHandler = setTimeout(() => {
         fetchPeople();
-      }, 1500);
+      }, 300);
     }
 
     return () => {
