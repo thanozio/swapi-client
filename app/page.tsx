@@ -87,6 +87,7 @@ export default function Home() {
 
       setPageCount(Math.ceil(res.length / 10));
       setCurrentPage(0);
+      console.log(res);
       setPeople(res);
     }
   }

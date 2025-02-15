@@ -64,24 +64,28 @@ export default function SearchAndFilter({
 
   useEffect(() => {
     if (selectedPlanet === "" && selectedMovie === "") return;
-    let planetResidents: string[] = [];
-    let movieCharacters: string[] = [];
+    let currentPlanet, currentMovie;
 
     if (planets && selectedPlanet) {
       const indexOfPlanet = Number(selectedPlanet) - 1;
-      planetResidents = planets[indexOfPlanet].residents;
+       currentPlanet = planets[indexOfPlanet];
     }
 
     if (movies && selectedMovie) {
       const indexOfMovie = Number(selectedMovie) - 1;
-      movieCharacters = movies[indexOfMovie].characters;
+      currentMovie = movies[indexOfMovie];
     }
 
-    const uniqueCharacterUrls = new Set([
-      ...planetResidents,
-      ...movieCharacters,
-    ]);
-    handleFiltersChange(Array.from(uniqueCharacterUrls));
+    // merging the 2 filters
+    if (currentMovie && currentPlanet) {
+      const movieSet = new Set(currentMovie.characters);
+      const lookup = currentPlanet.residents.filter(resident => movieSet.has(resident));
+      handleFiltersChange(lookup);
+    } else if (currentMovie) {
+      handleFiltersChange(currentMovie.characters);
+    } else if (currentPlanet) {
+      handleFiltersChange(currentPlanet.residents);
+    }
   }, [selectedPlanet, selectedMovie]);
 
   useEffect(() => {
