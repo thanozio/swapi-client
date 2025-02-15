@@ -8,11 +8,11 @@ import CharacterCard from "@/components/CharacterCard";
 import Spinner from "@/components/Spinner";
 
 import { StarWarsCharacter } from "@/globalTypes";
+import SearchAndFilter from "@/components/SearchAndFilter";
+import Footer from "@/components/Footer";
 
 interface StarWarsApiPeopleResponse {
   count: number;
-  next: string;
-  previous: string;
   results: StarWarsCharacter[];
 }
 
@@ -80,23 +80,16 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen justify-between">
       <main className="flex flex-col items-center justify-center gap-10 mt-10">
-        <h1>A long time ago in an API far, far away....</h1>
+        <h1>SWAPI Wars</h1>
+        <h2>A long time ago in an API far, far away...</h2>
         {showSpinner && <Spinner />}
         {error && <p className="text-red-500">{error}</p>}
         {!showSpinner && !error && (
           <>
-            <div>
-              <label htmlFor="characterSearch">Character search: </label>
-              <input
-                type="text"
-                name="characterSearch"
-                id="characterSearch"
-                placeholder="Enter a character name"
-                value={charFilter}
-                className="text-black pr-2 pl-2"
-                onChange={handleSearchChange}
-              />
-            </div>
+            <SearchAndFilter
+              charFilter={charFilter}
+              handleSearchChange={handleSearchChange}
+            />
             <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
               {people &&
                 people.map((character, index) => (
@@ -133,14 +126,7 @@ export default function Home() {
           />
         )}
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <p>
-          Made with ❤️ and React by Thanos Dimitriades - 2025 | Powered by{" "}
-          <a href="https://swapi.dev/" className="text-yellow-300">
-            The Star Wars API
-          </a>
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 }
