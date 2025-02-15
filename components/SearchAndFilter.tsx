@@ -1,19 +1,21 @@
 "use client";
 
-import { stringify } from "querystring";
 import { ChangeEvent, useEffect, useState } from "react";
 
 interface SearchAndFilterProps {
   charFilter: string;
   handleSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleFiltersChange: (planetUrls: string[]) => void;
 }
 
 interface StarWarsMovie {
   title: string;
+  characters: string[];
 }
 
 interface StarWarsPlanets {
   name: string;
+  residents: string[];
 }
 
 interface StarWarsPlanetsResponse {
@@ -51,11 +53,36 @@ async function getAllPlanets(
 
 export default function SearchAndFilter({
   charFilter,
+  handleFiltersChange,
   handleSearchChange,
 }: SearchAndFilterProps) {
   const [movies, setMovies] = useState<StarWarsMovie[] | null>(null);
   const [planets, setPlanets] = useState<StarWarsPlanets[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedMovie, setSelectedMovie] = useState("");
+  const [selectedPlanet, setSelectedPlanet] = useState("");
+
+  useEffect(() => {
+    if (selectedPlanet === "" && selectedMovie === "") return;
+    let planetResidents: string[] = [];
+    let movieCharacters: string[] = [];
+
+    if (planets && selectedPlanet) {
+      const indexOfPlanet = Number(selectedPlanet) - 1;
+      planetResidents = planets[indexOfPlanet].residents;
+    }
+
+    if (movies && selectedMovie) {
+      const indexOfMovie = Number(selectedMovie) - 1;
+      movieCharacters = movies[indexOfMovie].characters;
+    }
+
+    const uniqueCharacterUrls = new Set([
+      ...planetResidents,
+      ...movieCharacters,
+    ]);
+    handleFiltersChange(Array.from(uniqueCharacterUrls));
+  }, [selectedPlanet, selectedMovie]);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -115,18 +142,17 @@ export default function SearchAndFilter({
               <label htmlFor="planets">Select a planet: </label>
               <select
                 name="planets"
+                value={selectedPlanet}
+                onChange={(e) => setSelectedPlanet(e.target.value)}
                 id="planets"
-                defaultValue=""
-                className="text-gray-400 mr-2"
+                className="text-black mr-2"
               >
-                <option value="" disabled>
-                  -- Select a planet --
-                </option>
+                <option value="">-- Select a planet --</option>
                 {planets &&
-                  planets.map((planet) => (
+                  planets.map((planet, index) => (
                     <option
                       key={planet.name}
-                      value={planet.name}
+                      value={index + 1}
                       className="text-black"
                     >
                       {planet.name}
@@ -137,17 +163,18 @@ export default function SearchAndFilter({
               <select
                 name="movies"
                 id="movies"
-                defaultValue=""
-                className="text-gray-400"
+                value={selectedMovie}
+                onChange={(e) => setSelectedMovie(e.target.value)}
+                className="text-black"
               >
-                <option value="" disabled className="text-gray-400">
+                <option value="" className="text-gray-400">
                   -- Select a movie --
                 </option>
                 {movies &&
-                  movies.map((movie) => (
+                  movies.map((movie, index) => (
                     <option
                       key={movie.title}
-                      value={movie.title}
+                      value={index + 1}
                       className="text-black"
                     >
                       {movie.title}

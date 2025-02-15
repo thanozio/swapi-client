@@ -24,7 +24,7 @@ export default function Home() {
   const [pageCount, setPageCount] = useState(1);
   const [charFilter, setCharFilter] = useState("");
 
-  const fetchPeople = async (page = 1) => {
+  async function fetchPeople(page = 1) {
     const url = `https://swapi.dev/api/people/?page=${page}${
       charFilter !== "" ? `&search=${charFilter}` : ""
     }`;
@@ -50,7 +50,7 @@ export default function Home() {
     } finally {
       setShowSpinner(false);
     }
-  };
+  }
 
   const handlePageClick = async (data: { selected: number }) => {
     setCurrentPage(data.selected);
@@ -77,6 +77,20 @@ export default function Home() {
     setCharFilter(e.target.value);
   };
 
+  async function handleFiltersChange(urls: string[]) {
+    if (urls.length === 0) {
+      setPeople([]);
+    } else {
+      const res: StarWarsCharacter[] = await Promise.all(
+        urls.map((url) => fetch(url).then((data) => data.json()))
+      );
+
+      setPageCount(Math.ceil(res.length / 10));
+      setCurrentPage(0);
+      setPeople(res);
+    }
+  }
+
   return (
     <div className="flex flex-col h-screen justify-between">
       <main className="flex flex-col items-center justify-center gap-10 mt-10">
@@ -89,6 +103,7 @@ export default function Home() {
             <SearchAndFilter
               charFilter={charFilter}
               handleSearchChange={handleSearchChange}
+              handleFiltersChange={handleFiltersChange}
             />
             <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
               {people &&
@@ -102,7 +117,6 @@ export default function Home() {
             </div>
           </>
         )}
-        {/* #TODO reset page after search input */}
         {!showSpinner && (
           <ReactPaginate
             previousLabel={"previous"}

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import { StarWarsCharacter } from "@/globalTypes";
 
-
 interface HomeworldData {
   name: string;
   terrain: string;
@@ -10,7 +9,11 @@ interface HomeworldData {
   population: string;
 }
 
-export default function CharacterModalData({ character }: { character: StarWarsCharacter }) {
+export default function CharacterModalData({
+  character,
+}: {
+  character: StarWarsCharacter;
+}) {
   const [homeworldData, setHomeworldData] = useState<HomeworldData | null>(
     null
   );
@@ -63,7 +66,9 @@ export default function CharacterModalData({ character }: { character: StarWarsC
         <p>Climate: {homeworldData?.climate}</p>
         <p>
           Population:{" "}
-          {Number(homeworldData?.population).toLocaleString("el-gr")}
+          {homeworldData?.population !== "unknown"
+            ? Number(homeworldData?.population).toLocaleString("el-gr")
+            : "unknown"}
         </p>
       </div>
       {error && <h2 className="text-red-500">Could not fetch data</h2>}
