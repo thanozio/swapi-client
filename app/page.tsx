@@ -13,6 +13,8 @@ import Footer from "@/components/Footer";
 
 import { getAllPeople } from "@/utils/fetchSwapiData";
 
+const PEOPLE_PER_PAGE = 10;
+
 export default function Home() {
   const [people, setPeople] = useState<StarWarsPeople[]>([]);
   const [showSpinner, setShowSpinner] = useState(true);
@@ -50,7 +52,7 @@ export default function Home() {
     let res = people;
     if (charFilter !== "") {
       res = res.filter((person) =>
-        person.name.toLowerCase().includes(charFilter.toLowerCase()),
+        person.name.toLowerCase().includes(charFilter.toLowerCase())
       );
     }
 
@@ -74,7 +76,7 @@ export default function Home() {
 
   useEffect(() => {
     if (filteredPeople.length > 0) {
-      const pageCounter = Math.ceil(filteredPeople.length / 10);
+      const pageCounter = Math.ceil(filteredPeople.length / PEOPLE_PER_PAGE);
       setPageCount(pageCounter);
     }
   }, [filteredPeople]);
@@ -98,12 +100,12 @@ export default function Home() {
       });
       setPeopleIdsFilter(ids);
     },
-    [setPeopleIdsFilter],
+    [setPeopleIdsFilter]
   );
 
   const peopleForCurrentPage = filteredPeople.slice(
-    (currentPage + 1) * 10 - 10,
-    (currentPage + 1) * 10,
+    (currentPage + 1) * PEOPLE_PER_PAGE - PEOPLE_PER_PAGE,
+    (currentPage + 1) * PEOPLE_PER_PAGE
   );
 
   return (
@@ -121,6 +123,28 @@ export default function Home() {
               handleDropdownsChange={handleDropdownsChange}
               setCharFilter={setCharFilter}
             />
+            {!showSpinner && (
+              <ReactPaginate
+                previousLabel={"previous"}
+                forcePage={currentPage}
+                nextLabel={"next"}
+                breakLabel={"..."}
+                pageCount={pageCount}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={3}
+                onPageChange={handlePageChange}
+                containerClassName="flex gap-x-2 mb-4"
+                pageClassName="px-3 py-2 border rounded hover:bg-gray-200"
+                pageLinkClassName="text-white"
+                previousClassName="px-3 py-2 border rounded hover:bg-gray-200"
+                previousLinkClassName="text-white"
+                nextClassName="px-3 py-2 border rounded hover:bg-gray-200"
+                nextLinkClassName="text-white"
+                breakClassName="px-3 py-2 border rounded"
+                breakLinkClassName="text-white"
+                activeClassName="bg-yellow-400"
+              />
+            )}
             <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
               {peopleForCurrentPage &&
                 peopleForCurrentPage.map((character, index) => (
@@ -132,28 +156,6 @@ export default function Home() {
                 ))}
             </div>
           </>
-        )}
-        {!showSpinner && (
-          <ReactPaginate
-            previousLabel={"previous"}
-            forcePage={currentPage}
-            nextLabel={"next"}
-            breakLabel={"..."}
-            pageCount={pageCount}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={3}
-            onPageChange={handlePageChange}
-            containerClassName="flex gap-x-2 mb-4"
-            pageClassName="px-3 py-2 border rounded hover:bg-gray-200"
-            pageLinkClassName="text-white"
-            previousClassName="px-3 py-2 border rounded hover:bg-gray-200"
-            previousLinkClassName="text-white"
-            nextClassName="px-3 py-2 border rounded hover:bg-gray-200"
-            nextLinkClassName="text-white"
-            breakClassName="px-3 py-2 border rounded"
-            breakLinkClassName="text-white"
-            activeClassName="bg-yellow-400"
-          />
         )}
       </main>
       <Footer />
