@@ -40,7 +40,10 @@ export default function SearchAndFilter({
     if (currentMovie && currentPlanet) {
       const movieSet = new Set(currentMovie.characters);
       const planetSet = new Set(currentPlanet.residents);
-      handleDropdownsChange(Array.from(movieSet.intersection(planetSet)), hasDropdownValues);
+      handleDropdownsChange(
+        Array.from(movieSet.intersection(planetSet)),
+        hasDropdownValues
+      );
     } else if (currentMovie) {
       handleDropdownsChange(currentMovie.characters, hasDropdownValues);
     } else if (currentPlanet) {
@@ -53,9 +56,9 @@ export default function SearchAndFilter({
       try {
         const [planetsData, moviesData] = await Promise.all([
           planets === null ? fetchAllPlanets() : null,
-          movies === null ? fetchAllMovies() : null
+          movies === null ? fetchAllMovies() : null,
         ]);
-        
+
         if (planetsData) setPlanets(planetsData);
         if (moviesData) setMovies(moviesData);
       } catch (error) {
@@ -83,33 +86,6 @@ export default function SearchAndFilter({
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     handleSearchChange(e.target.value);
   };
-
-  const planetOptions = useMemo(() => {
-    if (!planets) return null;
-    return planets.map((planet, index) => (
-      <option
-        key={planet.name}
-        value={index + 1}
-        className="text-black"
-      >
-        {planet.name}
-      </option>
-    ));
-  }, [planets]);
-
-  const movieOptions = useMemo(() => {
-    if (!movies) return null;
-    return movies.map((movie, index) => (
-      <option
-        key={movie.title}
-        value={index + 1}
-        className="text-black"
-      >
-        {movie.title}
-      </option>
-    ));
-  }, [movies]);
-
 
   return (
     <>
@@ -140,7 +116,16 @@ export default function SearchAndFilter({
                 className="text-black mr-2"
               >
                 <option value="">-- Select a planet --</option>
-                {planetOptions}
+                {planets &&
+                  planets.map((planet, index) => (
+                    <option
+                      key={planet.name}
+                      value={index + 1}
+                      className="text-black"
+                    >
+                      {planet.name}
+                    </option>
+                  ))}
               </select>
               <label htmlFor="movies">Select a film: </label>
               <select
@@ -153,7 +138,16 @@ export default function SearchAndFilter({
                 <option value="" className="text-gray-400">
                   -- Select a movie --
                 </option>
-                {movieOptions}
+                {movies &&
+                  movies.map((movie, index) => (
+                    <option
+                      key={movie.title}
+                      value={index + 1}
+                      className="text-black"
+                    >
+                      {movie.title}
+                    </option>
+                  ))}
               </select>
             </div>
             <div>
