@@ -103,12 +103,12 @@ export default function Home() {
     setCurrentPage(data.selected);
   };
 
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (searchValue: string) => {
     setCurrentPage(0);
-    setCharFilter(e.target.value);
+    setCharFilter(searchValue);
   };
 
-  async function handleFiltersChange(urls: string[]) {
+  async function handleDropdownsChange(urls: string[]) {
     const ids = urls.map(url => {
       const match = url.match(/(\d+)/);
       return match ? parseInt(match[1]) : null;
@@ -131,7 +131,8 @@ export default function Home() {
             <SearchAndFilter
               charFilter={charFilter}
               handleSearchChange={handleSearchChange}
-              handleFiltersChange={handleFiltersChange}
+              handleDropdownsChange={handleDropdownsChange}
+              setCharFilter={setCharFilter}
             />
             <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
               {peopleForCurrentPage &&

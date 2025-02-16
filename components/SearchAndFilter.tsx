@@ -1,11 +1,12 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface SearchAndFilterProps {
   charFilter: string;
-  handleSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleFiltersChange: (planetUrls: string[]) => void;
+  handleSearchChange: (searchValue: string) => void;
+  handleDropdownsChange: (planetUrls: string[]) => void;
+  setCharFilter: Dispatch<SetStateAction<string>>
 }
 
 interface StarWarsMovie {
@@ -53,8 +54,9 @@ async function getAllPlanets(
 
 export default function SearchAndFilter({
   charFilter,
-  handleFiltersChange,
+  handleDropdownsChange,
   handleSearchChange,
+  setCharFilter,
 }: SearchAndFilterProps) {
   const [movies, setMovies] = useState<StarWarsMovie[] | null>(null);
   const [planets, setPlanets] = useState<StarWarsPlanets[] | null>(null);
@@ -64,7 +66,7 @@ export default function SearchAndFilter({
 
   useEffect(() => {
     if (selectedPlanet === "" && selectedMovie === "") {
-      handleFiltersChange([]);
+      handleDropdownsChange([]);
     };
     let currentPlanet, currentMovie;
 
@@ -82,11 +84,11 @@ export default function SearchAndFilter({
     if (currentMovie && currentPlanet) {
       const movieSet = new Set(currentMovie.characters);
       const lookup = currentPlanet.residents.filter(resident => movieSet.has(resident));
-      handleFiltersChange(lookup);
+      handleDropdownsChange(lookup);
     } else if (currentMovie) {
-      handleFiltersChange(currentMovie.characters);
+      handleDropdownsChange(currentMovie.characters);
     } else if (currentPlanet) {
-      handleFiltersChange(currentPlanet.residents);
+      handleDropdownsChange(currentPlanet.residents);
     }
   }, [selectedPlanet, selectedMovie]);
 
@@ -128,6 +130,12 @@ export default function SearchAndFilter({
   const handleFiltersReset = () => {
     setSelectedMovie("");
     setSelectedPlanet("");
+    setCharFilter("");
+    // need to reset the input here
+  }
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleSearchChange(e.target.value);
   }
 
   return (
@@ -146,7 +154,7 @@ export default function SearchAndFilter({
                 placeholder="Enter a character name"
                 value={charFilter}
                 className="text-black pr-2 pl-2"
-                onChange={handleSearchChange}
+                onChange={handleInputChange}
               />
             </div>
             <div className="m-2">
