@@ -22,7 +22,10 @@ export interface StarWarsPeople {
 export interface SearchAndFilterProps {
   charFilter: string;
   handleSearchChange: (searchValue: string) => void;
-  handleDropdownsChange: (planetUrls: string[], hasDropdownValues: boolean) => void;
+  handleDropdownsChange: (
+    planetUrls: string[],
+    hasDropdownValues: boolean,
+  ) => void;
   setCharFilter: Dispatch<SetStateAction<string>>;
 }
 

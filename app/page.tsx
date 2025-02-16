@@ -50,7 +50,7 @@ export default function Home() {
     let res = people;
     if (charFilter !== "") {
       res = res.filter((person) =>
-        person.name.toLowerCase().includes(charFilter.toLowerCase())
+        person.name.toLowerCase().includes(charFilter.toLowerCase()),
       );
     }
 
@@ -97,12 +97,12 @@ export default function Home() {
       });
       setPeopleIdsFilter(ids);
     },
-    [setPeopleIdsFilter]
+    [setPeopleIdsFilter],
   );
 
   const peopleForCurrentPage = filteredPeople.slice(
     (currentPage + 1) * 10 - 10,
-    (currentPage + 1) * 10
+    (currentPage + 1) * 10,
   );
 
   return (
