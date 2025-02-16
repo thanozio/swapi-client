@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import ReactPaginate from "react-paginate";
 
@@ -28,11 +28,7 @@ async function getAllPeople(url: string): Promise<StarWarsPeople[]> {
       peopleUrls.push(`${url}?page=${page}`);
     }
   } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    } else if (typeof error === "string") {
-      throw new Error(error);
-    }
+    throw error;
   }
 
   const people: StarWarsPeople[] = [];
@@ -56,14 +52,27 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(0);
   const [pageCount, setPageCount] = useState(1);
   const [charFilter, setCharFilter] = useState("");
-  const [peopleIdsFilter, setPeopleIdsFilter] = useState<(number|null)[]>([]);
+  const [peopleIdsFilter, setPeopleIdsFilter] = useState<(number | null)[]>([]);
 
   useEffect(() => {
     if (!showSpinner) return;
-    getAllPeople("https://swapi.dev/api/people/").then((fetchedPeople) => {
-      setPeople(fetchedPeople);
-      setShowSpinner(false);
-    });
+
+    getAllPeople("https://swapi.dev/api/people/")
+      .then((fetchedPeople) => {
+        setPeople(fetchedPeople);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else if (typeof error === "string") {
+          setError(error);
+        } else {
+          setError("Something happened. Please try again later.");
+        }
+      })
+      .finally(() => {
+        setShowSpinner(false);
+      });
   }, [showSpinner]);
 
   const filteredPeople = useMemo(() => {
@@ -76,20 +85,22 @@ export default function Home() {
 
     let fromPeopleArray: StarWarsPeople[] = [];
     if (peopleIdsFilter.length > 0) {
-      // pick the people from the people array, by index
+      // I'm translating the character id from endpoint to the index that corresponds
+      // to the full array of characters
       for (let id of peopleIdsFilter) {
-        // need this check to avoid pushing null (TypeScript guards)
-        if (id) fromPeopleArray.push(people[id-1]);
+        // null checking this (TypeScript guards stuff)
+        if (id) {
+          fromPeopleArray.push(people[id - 1]);
+        }
       }
     }
 
     if (fromPeopleArray.length > 0) {
-      res = res.filter(person => fromPeopleArray.includes(person));
+      res = res.filter((person) => fromPeopleArray.includes(person));
     }
 
     return res;
   }, [currentPage, people, charFilter, peopleIdsFilter]);
-
 
   useEffect(() => {
     if (filteredPeople.length > 0) {
@@ -97,7 +108,6 @@ export default function Home() {
       setPageCount(pageCounter);
     }
   }, [filteredPeople]);
-
 
   const handlePageChange = async (data: { selected: number }) => {
     setCurrentPage(data.selected);
@@ -109,15 +119,17 @@ export default function Home() {
   };
 
   async function handleDropdownsChange(urls: string[]) {
-    const ids = urls.map(url => {
+    const ids = urls.map((url) => {
       const match = url.match(/(\d+)/);
       return match ? parseInt(match[1]) : null;
     });
     setPeopleIdsFilter(ids);
   }
 
-
-  const peopleForCurrentPage = filteredPeople.slice((currentPage + 1) * 10 - 10, (currentPage + 1) * 10);
+  const peopleForCurrentPage = filteredPeople.slice(
+    (currentPage + 1) * 10 - 10,
+    (currentPage + 1) * 10
+  );
 
   return (
     <div className="flex flex-col h-screen justify-between">
@@ -136,14 +148,13 @@ export default function Home() {
             />
             <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
               {peopleForCurrentPage &&
-                peopleForCurrentPage
-                  .map((character, index) => (
-                    <CharacterCard
-                      key={character.name}
-                      character={character}
-                      index={index}
-                    />
-                  ))}
+                peopleForCurrentPage.map((character, index) => (
+                  <CharacterCard
+                    key={character.name}
+                    character={character}
+                    index={index}
+                  />
+                ))}
             </div>
           </>
         )}

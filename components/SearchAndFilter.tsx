@@ -1,12 +1,18 @@
 "use client";
 
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 interface SearchAndFilterProps {
   charFilter: string;
   handleSearchChange: (searchValue: string) => void;
   handleDropdownsChange: (planetUrls: string[]) => void;
-  setCharFilter: Dispatch<SetStateAction<string>>
+  setCharFilter: Dispatch<SetStateAction<string>>;
 }
 
 interface StarWarsMovie {
@@ -29,14 +35,20 @@ interface StarWarsMoviesResponse {
   results: StarWarsMovie[];
 }
 
-async function getAllPlanets(
-  basePlanetsUrl: string
+async function fetchAllPlanets(
 ): Promise<StarWarsPlanets[]> {
   const planets: StarWarsPlanets[] = [];
-  const response = await fetch(basePlanetsUrl);
-  const data: StarWarsPlanetsResponse = await response.json();
-  const planetCount = data.count;
-  const planetPageCount = Math.ceil(planetCount / 10);
+  let planetPageCount: number;
+  const basePlanetsUrl = "https://swapi.dev/api/planets";
+  try {
+    const response = await fetch(basePlanetsUrl);
+    const data: StarWarsPlanetsResponse = await response.json();
+    const planetCount = data.count;
+    planetPageCount = Math.ceil(planetCount / 10);
+  } catch (error) {
+    throw error;
+  }
+
   const planetUrls: string[] = [];
   for (let i = 1; i <= planetPageCount; i++) {
     planetUrls.push(`${basePlanetsUrl}?page=${i}`);
@@ -51,6 +63,21 @@ async function getAllPlanets(
   });
   return planets;
 }
+
+async function fetchAllMovies() {
+  const url = "https://swapi.dev/api/films";
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`API Error: ${res.status} - ${res.statusText}`);
+    }
+    const data: StarWarsMoviesResponse = await res.json();
+    return data.results;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 export default function SearchAndFilter({
   charFilter,
@@ -67,12 +94,12 @@ export default function SearchAndFilter({
   useEffect(() => {
     if (selectedPlanet === "" && selectedMovie === "") {
       handleDropdownsChange([]);
-    };
+    }
     let currentPlanet, currentMovie;
 
     if (planets && selectedPlanet) {
       const indexOfPlanet = Number(selectedPlanet) - 1;
-       currentPlanet = planets[indexOfPlanet];
+      currentPlanet = planets[indexOfPlanet];
     }
 
     if (movies && selectedMovie) {
@@ -83,7 +110,9 @@ export default function SearchAndFilter({
     // merging the 2 filters
     if (currentMovie && currentPlanet) {
       const movieSet = new Set(currentMovie.characters);
-      const lookup = currentPlanet.residents.filter(resident => movieSet.has(resident));
+      const lookup = currentPlanet.residents.filter((resident) =>
+        movieSet.has(resident)
+      );
       handleDropdownsChange(lookup);
     } else if (currentMovie) {
       handleDropdownsChange(currentMovie.characters);
@@ -93,37 +122,40 @@ export default function SearchAndFilter({
   }, [selectedPlanet, selectedMovie]);
 
   useEffect(() => {
-    const fetchMovies = async () => {
-      const url = "https://swapi.dev/api/films";
-
-      try {
-        const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error(`API Error: ${res.status} - ${res.statusText}`);
-        }
-        const data: StarWarsMoviesResponse = await res.json();
-        setMovies(data.results);
-      } catch (error) {
+  
+    if (planets === null) {
+      fetchAllPlanets()
+        .then((data) => setPlanets(data)
+      ).catch(error => {
         if (error instanceof Error) {
           setError(error.message);
+        } else if (typeof error === "string") {
+          setError(error);
         } else {
-          setError(
-            "Unable to load data. Check your connection or try again later."
-          );
+          setError("Something happened. Please try again later.");
         }
-      }
-    };
+      });
+    }
+    if (movies === null) {
+      fetchAllMovies().then(data => setMovies(data)).catch(error => {
 
-    if (!movies) {
-      fetchMovies();
+      });
     }
   }, [movies]);
 
   useEffect(() => {
     if (planets === null) {
-      getAllPlanets("https://swapi.dev/api/planets").then((data) =>
-        setPlanets(data)
-      );
+      fetchAllPlanets()
+        .then((data) => setPlanets(data)
+      ).catch(error => {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else if (typeof error === "string") {
+          setError(error);
+        } else {
+          setError("Something happened. Please try again later.");
+        }
+      });
     }
   }, [planets]);
 
@@ -132,11 +164,11 @@ export default function SearchAndFilter({
     setSelectedPlanet("");
     setCharFilter("");
     // need to reset the input here
-  }
+  };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     handleSearchChange(e.target.value);
-  }
+  };
 
   return (
     <>
@@ -202,10 +234,15 @@ export default function SearchAndFilter({
               </select>
             </div>
             <div>
-              <button className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded" onClick={e => {
-                e.preventDefault();
-                handleFiltersReset();
-              }}>Reset Filters</button>
+              <button
+                className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleFiltersReset();
+                }}
+              >
+                Reset Filters
+              </button>
             </div>
           </fieldset>
         </form>
