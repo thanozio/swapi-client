@@ -6,7 +6,7 @@ import {
   StarWarsPlanets,
 } from "@/globalTypes";
 import { fetchAllPlanets, fetchAllMovies } from "@/utils/fetchSwapiData";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export default function SearchAndFilter({
   charFilter,
