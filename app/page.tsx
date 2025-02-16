@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import localFont from 'next/font/local';
+import localFont from "next/font/local";
 import ReactPaginate from "react-paginate";
 
 import CharacterCard from "@/components/CharacterCard";
@@ -16,8 +16,8 @@ import { getAllPeople } from "@/utils/fetchSwapiData";
 const PEOPLE_PER_PAGE = 10;
 
 const starWarsFont = localFont({
-  src: '../public/fonts/Starjout.ttf',
-  display: 'swap'
+  src: "../public/fonts/Starjout.ttf",
+  display: "swap",
 });
 
 export default function Home() {
@@ -86,17 +86,18 @@ export default function Home() {
     }
   }, [filteredPeople]);
 
-  const handlePageChange = async (data: { selected: number }) => {
+  const handlePageChange = (data: { selected: number }) => {
     setCurrentPage(data.selected);
   };
 
-  const handleSearchChange = (searchValue: string) => {
+  const handleSearchChange = useCallback((searchValue: string) => {
     setCurrentPage(0);
     setCharFilter(searchValue);
-  };
+  }, []);
 
+  // causes infinite rerenders without callback
   const handleDropdownsChange = useCallback(
-    async (urls: string[], hasDropdownValues: boolean) => {
+    (urls: string[], hasDropdownValues: boolean) => {
       setHasDropdownsActive(hasDropdownValues);
       setCurrentPage(0);
       const ids = urls.map((url) => {
@@ -105,7 +106,7 @@ export default function Home() {
       });
       setPeopleIdsFilter(ids);
     },
-    [setPeopleIdsFilter]
+    []
   );
 
   const peopleForCurrentPage = filteredPeople.slice(
@@ -116,8 +117,12 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen justify-between">
       <main className="flex flex-col items-center justify-center gap-10 mt-10">
-        <h1 className={`${starWarsFont.className} text-yellow-400`}>swapi wars</h1>
-        <h2 className="text-yellow-400">A long time ago in an API far, far away...</h2>
+        <h1 className={`${starWarsFont.className} text-yellow-400`}>
+          swapi wars
+        </h1>
+        <h2 className="text-yellow-400">
+          A long time ago in an API far, far away...
+        </h2>
         {showSpinner && <Spinner />}
         {error && <p className="text-red-500">{error}</p>}
         {!showSpinner && !error && (
