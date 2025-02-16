@@ -1,4 +1,4 @@
-const Spinner = () => {
+export default function Spinner() {
   return (
     <div className="flex flex-col items-center">
       <div role="status">
@@ -22,6 +22,4 @@ const Spinner = () => {
       <span>The Force is coming, please wait...</span>
     </div>
   );
-};
-
-export default Spinner;
+}
