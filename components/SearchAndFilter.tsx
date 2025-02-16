@@ -63,7 +63,9 @@ export default function SearchAndFilter({
   const [selectedPlanet, setSelectedPlanet] = useState("");
 
   useEffect(() => {
-    if (selectedPlanet === "" && selectedMovie === "") return;
+    if (selectedPlanet === "" && selectedMovie === "") {
+      handleFiltersChange([]);
+    };
     let currentPlanet, currentMovie;
 
     if (planets && selectedPlanet) {

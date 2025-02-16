@@ -56,6 +56,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(0);
   const [pageCount, setPageCount] = useState(1);
   const [charFilter, setCharFilter] = useState("");
+  const [peopleIdsFilter, setPeopleIdsFilter] = useState<(number|null)[]>([]);
 
   useEffect(() => {
     if (!showSpinner) return;
@@ -74,8 +75,21 @@ export default function Home() {
       );
     }
 
+    let fromPeopleArray: StarWarsPeople[] = [];
+    if (peopleIdsFilter.length > 0) {
+      // pick the people from the people array, by index
+      for (let id of peopleIdsFilter) {
+        // need this check to avoid pushing null (TypeScript guards)
+        if (id) fromPeopleArray.push(people[id-1]);
+      }
+    }
+
+    if (fromPeopleArray.length > 0) {
+      res = res.filter(person => fromPeopleArray.includes(person));
+    }
+
     return res;
-  }, [currentPage, people, charFilter]);
+  }, [currentPage, people, charFilter, peopleIdsFilter]);
 
 
   useEffect(() => {
@@ -85,52 +99,10 @@ export default function Home() {
     }
   }, [filteredPeople]);
 
-  // async function fetchPeople(page = 1) {
-  //   const url = `https://swapi.dev/api/people/?page=${page}${
-  //     charFilter !== "" ? `&search=${charFilter}` : ""
-  //   }`;
-
-  //   try {
-  //     const res = await fetch(url);
-  //     if (!res.ok) {
-  //       throw new Error(`API Error: ${res.status} - ${res.statusText}`);
-  //     }
-  //     const data: StarWarsApiPeopleResponse = await res.json();
-  //     const newPageCount = Math.ceil(data.count / 10);
-
-  //     setPageCount(newPageCount);
-  //     setPeople(data.results);
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       setError(error.message);
-  //     } else {
-  //       setError(
-  //         "Unable to load data. Check your connection or try again later."
-  //       );
-  //     }
-  //   } finally {
-  //     setShowSpinner(false);
-  //   }
-  // }
 
   const handlePageChange = async (data: { selected: number }) => {
     setCurrentPage(data.selected);
   };
-
-  // useEffect(() => {
-  //   let debounceHandler: ReturnType<typeof setTimeout>;
-  //   if (showSpinner) {
-  //     fetchPeople();
-  //   } else {
-  //     debounceHandler = setTimeout(() => {
-  //       fetchPeople();
-  //     }, 300);
-  //   }
-
-  //   return () => {
-  //     clearTimeout(debounceHandler);
-  //   };
-  // }, [charFilter]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCurrentPage(0);
@@ -138,6 +110,14 @@ export default function Home() {
   };
 
   async function handleFiltersChange(urls: string[]) {
+    const ids = urls.map(url => {
+      const match = url.match(/(\d+)/);
+      return match ? parseInt(match[1]) : null;
+    });
+    setPeopleIdsFilter(ids);
+    // urls contains addresses that match characters.
+    // https://swapi.dev/api/people/4/
+    // I'll leverage the id on the path to pick them from the 
     // if (urls.length === 0) {
     //   setPeople([]);
     // } else {
@@ -150,6 +130,7 @@ export default function Home() {
     //   setPeople(res);
     // }
   }
+
 
   const peopleForCurrentPage = filteredPeople.slice((currentPage + 1) * 10 - 10, (currentPage + 1) * 10);
 
