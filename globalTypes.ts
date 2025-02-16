@@ -1,4 +1,4 @@
-export interface StarWarsCharacter {
+export interface StarWarsPeople {
   name: string;
   height: string;
   mass: string;

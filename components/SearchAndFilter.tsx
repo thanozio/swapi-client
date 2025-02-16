@@ -1,11 +1,18 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 interface SearchAndFilterProps {
   charFilter: string;
-  handleSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleFiltersChange: (planetUrls: string[]) => void;
+  handleSearchChange: (searchValue: string) => void;
+  handleDropdownsChange: (planetUrls: string[]) => void;
+  setCharFilter: Dispatch<SetStateAction<string>>;
 }
 
 interface StarWarsMovie {
@@ -28,14 +35,19 @@ interface StarWarsMoviesResponse {
   results: StarWarsMovie[];
 }
 
-async function getAllPlanets(
-  basePlanetsUrl: string
-): Promise<StarWarsPlanets[]> {
+async function fetchAllPlanets(): Promise<StarWarsPlanets[]> {
   const planets: StarWarsPlanets[] = [];
-  const response = await fetch(basePlanetsUrl);
-  const data: StarWarsPlanetsResponse = await response.json();
-  const planetCount = data.count;
-  const planetPageCount = Math.ceil(planetCount / 10);
+  let planetPageCount: number;
+  const basePlanetsUrl = "https://swapi.dev/api/planets";
+  try {
+    const response = await fetch(basePlanetsUrl);
+    const data: StarWarsPlanetsResponse = await response.json();
+    const planetCount = data.count;
+    planetPageCount = Math.ceil(planetCount / 10);
+  } catch (error) {
+    throw error;
+  }
+
   const planetUrls: string[] = [];
   for (let i = 1; i <= planetPageCount; i++) {
     planetUrls.push(`${basePlanetsUrl}?page=${i}`);
@@ -51,10 +63,25 @@ async function getAllPlanets(
   return planets;
 }
 
+async function fetchAllMovies() {
+  const url = "https://swapi.dev/api/films";
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`API Error: ${res.status} - ${res.statusText}`);
+    }
+    const data: StarWarsMoviesResponse = await res.json();
+    return data.results;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export default function SearchAndFilter({
   charFilter,
-  handleFiltersChange,
+  handleDropdownsChange,
   handleSearchChange,
+  setCharFilter,
 }: SearchAndFilterProps) {
   const [movies, setMovies] = useState<StarWarsMovie[] | null>(null);
   const [planets, setPlanets] = useState<StarWarsPlanets[] | null>(null);
@@ -63,12 +90,14 @@ export default function SearchAndFilter({
   const [selectedPlanet, setSelectedPlanet] = useState("");
 
   useEffect(() => {
-    if (selectedPlanet === "" && selectedMovie === "") return;
+    if (selectedPlanet === "" && selectedMovie === "") {
+      handleDropdownsChange([]);
+    }
     let currentPlanet, currentMovie;
 
     if (planets && selectedPlanet) {
       const indexOfPlanet = Number(selectedPlanet) - 1;
-       currentPlanet = planets[indexOfPlanet];
+      currentPlanet = planets[indexOfPlanet];
     }
 
     if (movies && selectedMovie) {
@@ -79,56 +108,80 @@ export default function SearchAndFilter({
     // merging the 2 filters
     if (currentMovie && currentPlanet) {
       const movieSet = new Set(currentMovie.characters);
-      const lookup = currentPlanet.residents.filter(resident => movieSet.has(resident));
-      handleFiltersChange(lookup);
+      const lookup = currentPlanet.residents.filter((resident) =>
+        movieSet.has(resident)
+      );
+      handleDropdownsChange(lookup);
     } else if (currentMovie) {
-      handleFiltersChange(currentMovie.characters);
+      handleDropdownsChange(currentMovie.characters);
     } else if (currentPlanet) {
-      handleFiltersChange(currentPlanet.residents);
+      handleDropdownsChange(currentPlanet.residents);
     }
-  }, [selectedPlanet, selectedMovie]);
-
-  useEffect(() => {
-    const fetchMovies = async () => {
-      const url = "https://swapi.dev/api/films";
-
-      try {
-        const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error(`API Error: ${res.status} - ${res.statusText}`);
-        }
-        const data: StarWarsMoviesResponse = await res.json();
-        setMovies(data.results);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError(
-            "Unable to load data. Check your connection or try again later."
-          );
-        }
-      }
-    };
-
-    if (!movies) {
-      fetchMovies();
-    }
-  }, [movies]);
+  }, [selectedPlanet, selectedMovie, movies, planets, handleDropdownsChange]);
 
   useEffect(() => {
     if (planets === null) {
-      getAllPlanets("https://swapi.dev/api/planets").then((data) =>
-        setPlanets(data)
-      );
+      fetchAllPlanets()
+        .then((data) => setPlanets(data))
+        .catch((error) => {
+          if (error instanceof Error) {
+            setError(error.message);
+          } else if (typeof error === "string") {
+            setError(error);
+          } else {
+            setError("Something happened. Please try again later.");
+          }
+        });
+    }
+
+    if (movies === null) {
+      fetchAllMovies()
+        .then((data) => setMovies(data))
+        .catch((error) => {
+          if (error instanceof Error) {
+            setError(error.message);
+          } else if (typeof error === "string") {
+            setError(error);
+          } else {
+            setError("Something happened. Please try again later.");
+          }
+        });
+    }
+  }, [movies, planets]);
+
+  useEffect(() => {
+    if (planets === null) {
+      fetchAllPlanets()
+        .then((data) => setPlanets(data))
+        .catch((error) => {
+          if (error instanceof Error) {
+            setError(error.message);
+          } else if (typeof error === "string") {
+            setError(error);
+          } else {
+            setError("Something happened. Please try again later.");
+          }
+        });
     }
   }, [planets]);
+
+  const handleFiltersReset = () => {
+    setSelectedMovie("");
+    setSelectedPlanet("");
+    setCharFilter("");
+    // need to reset the input here
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleSearchChange(e.target.value);
+  };
 
   return (
     <>
       {error && <p className="text-red-500">{error}</p>}
       {!error && (
         <form>
-          <fieldset className="border border-solid border-gray-300 p-3 flex flex-col gap-3">
+          <fieldset className="border border-solid border-gray-300 p-3 flex flex-col items-center gap-3">
             <legend>Character Search</legend>
             <div className="flex justify-center">
               <label htmlFor="characterSearch">Name: </label>
@@ -139,7 +192,7 @@ export default function SearchAndFilter({
                 placeholder="Enter a character name"
                 value={charFilter}
                 className="text-black pr-2 pl-2"
-                onChange={handleSearchChange}
+                onChange={handleInputChange}
               />
             </div>
             <div className="m-2">
@@ -185,6 +238,17 @@ export default function SearchAndFilter({
                     </option>
                   ))}
               </select>
+            </div>
+            <div>
+              <button
+                className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleFiltersReset();
+                }}
+              >
+                Reset Filters
+              </button>
             </div>
           </fieldset>
         </form>

@@ -1,96 +1,136 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 
 import ReactPaginate from "react-paginate";
 
 import CharacterCard from "@/components/CharacterCard";
 import Spinner from "@/components/Spinner";
 
-import { StarWarsCharacter } from "@/globalTypes";
+import { StarWarsPeople } from "@/globalTypes";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import Footer from "@/components/Footer";
 
 interface StarWarsApiPeopleResponse {
   count: number;
-  results: StarWarsCharacter[];
+  results: StarWarsPeople[];
+  next: string | null;
+}
+
+async function getAllPeople(url: string): Promise<StarWarsPeople[]> {
+  let data: StarWarsApiPeopleResponse;
+  const peopleUrls: string[] = [];
+
+  try {
+    const response = await fetch(url);
+    data = await response.json();
+    for (let page = 1; page <= Math.ceil(data.count / 10); page++) {
+      peopleUrls.push(`${url}?page=${page}`);
+    }
+  } catch (error) {
+    throw error;
+  }
+
+  const people: StarWarsPeople[] = [];
+  const fetchedPeople = await Promise.all(
+    peopleUrls.map((url) => fetch(url).then((data) => data.json()))
+  );
+
+  fetchedPeople.forEach((res) => {
+    people.push(...res.results);
+  });
+
+  return people;
 }
 
 export default function Home() {
-  const [people, setPeople] = useState<StarWarsCharacter[]>([]);
+  const [people, setPeople] = useState<StarWarsPeople[]>([]);
   const [showSpinner, setShowSpinner] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // this is always one less than what is shown by the pagination component
   const [currentPage, setCurrentPage] = useState(0);
   const [pageCount, setPageCount] = useState(1);
   const [charFilter, setCharFilter] = useState("");
-
-  async function fetchPeople(page = 1) {
-    const url = `https://swapi.dev/api/people/?page=${page}${
-      charFilter !== "" ? `&search=${charFilter}` : ""
-    }`;
-
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`API Error: ${res.status} - ${res.statusText}`);
-      }
-      const data: StarWarsApiPeopleResponse = await res.json();
-      const newPageCount = Math.ceil(data.count / 10);
-
-      setPageCount(newPageCount);
-      setPeople(data.results);
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError(
-          "Unable to load data. Check your connection or try again later."
-        );
-      }
-    } finally {
-      setShowSpinner(false);
-    }
-  }
-
-  const handlePageClick = async (data: { selected: number }) => {
-    setCurrentPage(data.selected);
-    await fetchPeople(data.selected + 1);
-  };
+  const [peopleIdsFilter, setPeopleIdsFilter] = useState<(number | null)[]>([]);
 
   useEffect(() => {
-    let debounceHandler: ReturnType<typeof setTimeout>;
-    if (showSpinner) {
-      fetchPeople();
-    } else {
-      debounceHandler = setTimeout(() => {
-        fetchPeople();
-      }, 300);
+    if (!showSpinner) return;
+
+    getAllPeople("https://swapi.dev/api/people/")
+      .then((fetchedPeople) => {
+        setPeople(fetchedPeople);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else if (typeof error === "string") {
+          setError(error);
+        } else {
+          setError("Something happened. Please try again later.");
+        }
+      })
+      .finally(() => {
+        setShowSpinner(false);
+      });
+  }, [showSpinner]);
+
+  const filteredPeople = useMemo(() => {
+    let res = people;
+    if (charFilter !== "") {
+      res = res.filter((person) =>
+        person.name.toLowerCase().includes(charFilter.toLowerCase())
+      );
     }
 
-    return () => {
-      clearTimeout(debounceHandler);
-    };
-  }, [charFilter]);
+    const fromPeopleArray: StarWarsPeople[] = [];
+    if (peopleIdsFilter.length > 0) {
+      // I'm translating the character id from endpoint to the index that corresponds
+      // to the full array of characters
+      for (const id of peopleIdsFilter) {
+        // null checking this (TypeScript guards stuff)
+        if (id) {
+          fromPeopleArray.push(people[id - 1]);
+        }
+      }
+    }
 
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setCurrentPage(0);
-    setCharFilter(e.target.value);
+    if (fromPeopleArray.length > 0) {
+      res = res.filter((person) => fromPeopleArray.includes(person));
+    }
+
+    return res;
+  }, [people, charFilter, peopleIdsFilter]);
+
+  useEffect(() => {
+    if (filteredPeople.length > 0) {
+      const pageCounter = Math.ceil(filteredPeople.length / 10);
+      setPageCount(pageCounter);
+    }
+  }, [filteredPeople]);
+
+  const handlePageChange = async (data: { selected: number }) => {
+    setCurrentPage(data.selected);
   };
 
-  async function handleFiltersChange(urls: string[]) {
-    if (urls.length === 0) {
-      setPeople([]);
-    } else {
-      const res: StarWarsCharacter[] = await Promise.all(
-        urls.map((url) => fetch(url).then((data) => data.json()))
-      );
+  const handleSearchChange = (searchValue: string) => {
+    setCurrentPage(0);
+    setCharFilter(searchValue);
+  };
 
-      setPageCount(Math.ceil(res.length / 10));
-      setCurrentPage(0);
-      console.log(res);
-      setPeople(res);
-    }
-  }
+  const handleDropdownsChange = useCallback(async (urls: string[]) => {
+    const ids = urls.map((url) => {
+      const match = url.match(/(\d+)/);
+      return match ? parseInt(match[1]) : null;
+    });
+    setPeopleIdsFilter(ids);
+  }, [setPeopleIdsFilter]);
+  
+
+  const peopleForCurrentPage = filteredPeople.slice(
+    (currentPage + 1) * 10 - 10,
+    (currentPage + 1) * 10
+  );
 
   return (
     <div className="flex flex-col h-screen justify-between">
@@ -104,11 +144,12 @@ export default function Home() {
             <SearchAndFilter
               charFilter={charFilter}
               handleSearchChange={handleSearchChange}
-              handleFiltersChange={handleFiltersChange}
+              handleDropdownsChange={handleDropdownsChange}
+              setCharFilter={setCharFilter}
             />
             <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
-              {people &&
-                people.map((character, index) => (
+              {peopleForCurrentPage &&
+                peopleForCurrentPage.map((character, index) => (
                   <CharacterCard
                     key={character.name}
                     character={character}
@@ -127,7 +168,7 @@ export default function Home() {
             pageCount={pageCount}
             marginPagesDisplayed={2}
             pageRangeDisplayed={3}
-            onPageChange={handlePageClick}
+            onPageChange={handlePageChange}
             containerClassName="flex gap-x-2 mb-4"
             pageClassName="px-3 py-2 border rounded hover:bg-gray-200"
             pageLinkClassName="text-white"
@@ -137,7 +178,7 @@ export default function Home() {
             nextLinkClassName="text-white"
             breakClassName="px-3 py-2 border rounded"
             breakLinkClassName="text-white"
-            activeClassName="bg-yellow-300"
+            activeClassName="bg-yellow-400"
           />
         )}
       </main>

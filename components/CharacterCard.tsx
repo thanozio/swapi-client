@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import CharacterModalData from "./CharacterModalData";
 import characterImages from "@/utils/images";
-import { StarWarsCharacter } from "@/globalTypes";
+import { StarWarsPeople } from "@/globalTypes";
 
 // Has to be inline for Tailwind to compile the classes in order to be dynamically assigned
 const speciesColors = new Map([
@@ -53,7 +53,7 @@ export default function CharacterCard({
   character,
   index,
 }: {
-  character: StarWarsCharacter;
+  character: StarWarsPeople;
   index: number;
 }) {
   // default is "Human", for when the API returns an empty array
@@ -117,7 +117,7 @@ export default function CharacterCard({
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
             <CharacterModalData character={character} />
             <button
-              className="bg-black hover:bg-yellow-300 text-yellow-300 hover:text-black border-yellow-300 p-2 rounded-lg"
+              className="bg-black hover:bg-yellow-400 text-yellow-400 hover:text-black border-yellow-400 p-2 rounded-lg"
               onClick={() => setIsModalOpen(false)}
             >
               Close
