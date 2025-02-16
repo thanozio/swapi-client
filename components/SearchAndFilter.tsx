@@ -125,12 +125,17 @@ export default function SearchAndFilter({
     }
   }, [planets]);
 
+  const handleFiltersReset = () => {
+    setSelectedMovie("");
+    setSelectedPlanet("");
+  }
+
   return (
     <>
       {error && <p className="text-red-500">{error}</p>}
       {!error && (
         <form>
-          <fieldset className="border border-solid border-gray-300 p-3 flex flex-col gap-3">
+          <fieldset className="border border-solid border-gray-300 p-3 flex flex-col items-center gap-3">
             <legend>Character Search</legend>
             <div className="flex justify-center">
               <label htmlFor="characterSearch">Name: </label>
@@ -187,6 +192,12 @@ export default function SearchAndFilter({
                     </option>
                   ))}
               </select>
+            </div>
+            <div>
+              <button className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded" onClick={e => {
+                e.preventDefault();
+                handleFiltersReset();
+              }}>Reset Filters</button>
             </div>
           </fieldset>
         </form>

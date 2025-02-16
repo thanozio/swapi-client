@@ -60,7 +60,6 @@ export default function Home() {
 
   useEffect(() => {
     if (!showSpinner) return;
-    console.log("logging first");
     getAllPeople("https://swapi.dev/api/people/").then((fetchedPeople) => {
       setPeople(fetchedPeople);
       setShowSpinner(false);
@@ -115,20 +114,6 @@ export default function Home() {
       return match ? parseInt(match[1]) : null;
     });
     setPeopleIdsFilter(ids);
-    // urls contains addresses that match characters.
-    // https://swapi.dev/api/people/4/
-    // I'll leverage the id on the path to pick them from the 
-    // if (urls.length === 0) {
-    //   setPeople([]);
-    // } else {
-    //   const res: StarWarsPeople[] = await Promise.all(
-    //     urls.map((url) => fetch(url).then((data) => data.json()))
-    //   );
-    //   setPageCount(Math.ceil(res.length / 10));
-    //   setCurrentPage(0);
-    //   console.log(res);
-    //   setPeople(res);
-    // }
   }
 
 
@@ -180,7 +165,7 @@ export default function Home() {
             nextLinkClassName="text-white"
             breakClassName="px-3 py-2 border rounded"
             breakLinkClassName="text-white"
-            activeClassName="bg-yellow-300"
+            activeClassName="bg-yellow-400"
           />
         )}
       </main>
