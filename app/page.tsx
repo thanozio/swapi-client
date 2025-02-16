@@ -91,6 +91,7 @@ export default function Home() {
   const handleDropdownsChange = useCallback(
     async (urls: string[], hasDropdownValues: boolean) => {
       setHasDropdownsActive(hasDropdownValues);
+      setCurrentPage(0);
       const ids = urls.map((url) => {
         const match = url.match(/(\d+)/);
         return match ? parseInt(match[1]) : null;

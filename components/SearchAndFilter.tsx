@@ -6,7 +6,7 @@ import {
   StarWarsPlanets,
 } from "@/globalTypes";
 import { fetchAllPlanets, fetchAllMovies } from "@/utils/fetchSwapiData";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 
 export default function SearchAndFilter({
   charFilter,
@@ -25,8 +25,8 @@ export default function SearchAndFilter({
     if (!hasDropdownValues) {
       handleDropdownsChange([], hasDropdownValues);
     }
-    let currentPlanet, currentMovie;
 
+    let currentPlanet, currentMovie;
     if (planets && selectedPlanet) {
       const indexOfPlanet = Number(selectedPlanet) - 1;
       currentPlanet = planets[indexOfPlanet];
@@ -37,65 +37,42 @@ export default function SearchAndFilter({
       currentMovie = movies[indexOfMovie];
     }
 
-    // merging the 2 filters
     if (currentMovie && currentPlanet) {
       const movieSet = new Set(currentMovie.characters);
-      const lookup = currentPlanet.residents.filter((resident) =>
-        movieSet.has(resident),
-      );
-      handleDropdownsChange(lookup, hasDropdownValues);
+      const planetSet = new Set(currentPlanet.residents);
+      handleDropdownsChange(Array.from(movieSet.intersection(planetSet)), hasDropdownValues);
     } else if (currentMovie) {
       handleDropdownsChange(currentMovie.characters, hasDropdownValues);
     } else if (currentPlanet) {
       handleDropdownsChange(currentPlanet.residents, hasDropdownValues);
     }
-  }, [selectedPlanet, selectedMovie, movies, planets, handleDropdownsChange]);
+  }, [selectedPlanet, selectedMovie, handleDropdownsChange]);
 
   useEffect(() => {
-    if (planets === null) {
-      fetchAllPlanets()
-        .then((data) => setPlanets(data))
-        .catch((error) => {
-          if (error instanceof Error) {
-            setError(error.message);
-          } else if (typeof error === "string") {
-            setError(error);
-          } else {
-            setError("Something happened. Please try again later.");
-          }
-        });
+    async function fetchData() {
+      try {
+        const [planetsData, moviesData] = await Promise.all([
+          planets === null ? fetchAllPlanets() : null,
+          movies === null ? fetchAllMovies() : null
+        ]);
+        
+        if (planetsData) setPlanets(planetsData);
+        if (moviesData) setMovies(moviesData);
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else if (typeof error === "string") {
+          setError(error);
+        } else {
+          setError("Something happened. Please try again later.");
+        }
+      }
     }
 
-    if (movies === null) {
-      fetchAllMovies()
-        .then((data) => setMovies(data))
-        .catch((error) => {
-          if (error instanceof Error) {
-            setError(error.message);
-          } else if (typeof error === "string") {
-            setError(error);
-          } else {
-            setError("Something happened. Please try again later.");
-          }
-        });
+    if (planets === null || movies === null) {
+      fetchData();
     }
   }, [movies, planets]);
-
-  useEffect(() => {
-    if (planets === null) {
-      fetchAllPlanets()
-        .then((data) => setPlanets(data))
-        .catch((error) => {
-          if (error instanceof Error) {
-            setError(error.message);
-          } else if (typeof error === "string") {
-            setError(error);
-          } else {
-            setError("Something happened. Please try again later.");
-          }
-        });
-    }
-  }, [planets]);
 
   const handleFiltersReset = () => {
     setSelectedMovie("");
@@ -106,6 +83,33 @@ export default function SearchAndFilter({
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     handleSearchChange(e.target.value);
   };
+
+  const planetOptions = useMemo(() => {
+    if (!planets) return null;
+    return planets.map((planet, index) => (
+      <option
+        key={planet.name}
+        value={index + 1}
+        className="text-black"
+      >
+        {planet.name}
+      </option>
+    ));
+  }, [planets]);
+
+  const movieOptions = useMemo(() => {
+    if (!movies) return null;
+    return movies.map((movie, index) => (
+      <option
+        key={movie.title}
+        value={index + 1}
+        className="text-black"
+      >
+        {movie.title}
+      </option>
+    ));
+  }, [movies]);
+
 
   return (
     <>
@@ -136,16 +140,7 @@ export default function SearchAndFilter({
                 className="text-black mr-2"
               >
                 <option value="">-- Select a planet --</option>
-                {planets &&
-                  planets.map((planet, index) => (
-                    <option
-                      key={planet.name}
-                      value={index + 1}
-                      className="text-black"
-                    >
-                      {planet.name}
-                    </option>
-                  ))}
+                {planetOptions}
               </select>
               <label htmlFor="movies">Select a film: </label>
               <select
@@ -158,16 +153,7 @@ export default function SearchAndFilter({
                 <option value="" className="text-gray-400">
                   -- Select a movie --
                 </option>
-                {movies &&
-                  movies.map((movie, index) => (
-                    <option
-                      key={movie.title}
-                      value={index + 1}
-                      className="text-black"
-                    >
-                      {movie.title}
-                    </option>
-                  ))}
+                {movieOptions}
               </select>
             </div>
             <div>
