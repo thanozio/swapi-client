@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-
+import localFont from 'next/font/local';
 import ReactPaginate from "react-paginate";
 
 import CharacterCard from "@/components/CharacterCard";
@@ -14,6 +14,11 @@ import Footer from "@/components/Footer";
 import { getAllPeople } from "@/utils/fetchSwapiData";
 
 const PEOPLE_PER_PAGE = 10;
+
+const starWarsFont = localFont({
+  src: '../public/fonts/Starjout.ttf',
+  display: 'swap'
+});
 
 export default function Home() {
   const [people, setPeople] = useState<StarWarsPeople[]>([]);
@@ -111,8 +116,8 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen justify-between">
       <main className="flex flex-col items-center justify-center gap-10 mt-10">
-        <h1>SWAPI Wars</h1>
-        <h2>A long time ago in an API far, far away...</h2>
+        <h1 className={`${starWarsFont.className} text-yellow-400`}>swapi wars</h1>
+        <h2 className="text-yellow-400">A long time ago in an API far, far away...</h2>
         {showSpinner && <Spinner />}
         {error && <p className="text-red-500">{error}</p>}
         {!showSpinner && !error && (
