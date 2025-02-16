@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 
 import ReactPaginate from "react-paginate";
 
@@ -83,11 +83,11 @@ export default function Home() {
       );
     }
 
-    let fromPeopleArray: StarWarsPeople[] = [];
+    const fromPeopleArray: StarWarsPeople[] = [];
     if (peopleIdsFilter.length > 0) {
       // I'm translating the character id from endpoint to the index that corresponds
       // to the full array of characters
-      for (let id of peopleIdsFilter) {
+      for (const id of peopleIdsFilter) {
         // null checking this (TypeScript guards stuff)
         if (id) {
           fromPeopleArray.push(people[id - 1]);
@@ -100,7 +100,7 @@ export default function Home() {
     }
 
     return res;
-  }, [currentPage, people, charFilter, peopleIdsFilter]);
+  }, [people, charFilter, peopleIdsFilter]);
 
   useEffect(() => {
     if (filteredPeople.length > 0) {
@@ -118,13 +118,14 @@ export default function Home() {
     setCharFilter(searchValue);
   };
 
-  async function handleDropdownsChange(urls: string[]) {
+  const handleDropdownsChange = useCallback(async (urls: string[]) => {
     const ids = urls.map((url) => {
       const match = url.match(/(\d+)/);
       return match ? parseInt(match[1]) : null;
     });
     setPeopleIdsFilter(ids);
-  }
+  }, [setPeopleIdsFilter]);
+  
 
   const peopleForCurrentPage = filteredPeople.slice(
     (currentPage + 1) * 10 - 10,

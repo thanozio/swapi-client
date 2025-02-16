@@ -35,8 +35,7 @@ interface StarWarsMoviesResponse {
   results: StarWarsMovie[];
 }
 
-async function fetchAllPlanets(
-): Promise<StarWarsPlanets[]> {
+async function fetchAllPlanets(): Promise<StarWarsPlanets[]> {
   const planets: StarWarsPlanets[] = [];
   let planetPageCount: number;
   const basePlanetsUrl = "https://swapi.dev/api/planets";
@@ -76,8 +75,7 @@ async function fetchAllMovies() {
   } catch (error) {
     throw error;
   }
-};
-
+}
 
 export default function SearchAndFilter({
   charFilter,
@@ -119,43 +117,51 @@ export default function SearchAndFilter({
     } else if (currentPlanet) {
       handleDropdownsChange(currentPlanet.residents);
     }
-  }, [selectedPlanet, selectedMovie]);
+  }, [selectedPlanet, selectedMovie, movies, planets, handleDropdownsChange]);
 
   useEffect(() => {
-  
     if (planets === null) {
       fetchAllPlanets()
-        .then((data) => setPlanets(data)
-      ).catch(error => {
-        if (error instanceof Error) {
-          setError(error.message);
-        } else if (typeof error === "string") {
-          setError(error);
-        } else {
-          setError("Something happened. Please try again later.");
-        }
-      });
+        .then((data) => setPlanets(data))
+        .catch((error) => {
+          if (error instanceof Error) {
+            setError(error.message);
+          } else if (typeof error === "string") {
+            setError(error);
+          } else {
+            setError("Something happened. Please try again later.");
+          }
+        });
     }
+
     if (movies === null) {
-      fetchAllMovies().then(data => setMovies(data)).catch(error => {
-
-      });
+      fetchAllMovies()
+        .then((data) => setMovies(data))
+        .catch((error) => {
+          if (error instanceof Error) {
+            setError(error.message);
+          } else if (typeof error === "string") {
+            setError(error);
+          } else {
+            setError("Something happened. Please try again later.");
+          }
+        });
     }
-  }, [movies]);
+  }, [movies, planets]);
 
   useEffect(() => {
     if (planets === null) {
       fetchAllPlanets()
-        .then((data) => setPlanets(data)
-      ).catch(error => {
-        if (error instanceof Error) {
-          setError(error.message);
-        } else if (typeof error === "string") {
-          setError(error);
-        } else {
-          setError("Something happened. Please try again later.");
-        }
-      });
+        .then((data) => setPlanets(data))
+        .catch((error) => {
+          if (error instanceof Error) {
+            setError(error.message);
+          } else if (typeof error === "string") {
+            setError(error);
+          } else {
+            setError("Something happened. Please try again later.");
+          }
+        });
     }
   }, [planets]);
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { StarWarsCharacter } from "@/globalTypes";
+import { StarWarsPeople } from "@/globalTypes";
 
 interface HomeworldData {
   name: string;
@@ -12,7 +12,7 @@ interface HomeworldData {
 export default function CharacterModalData({
   character,
 }: {
-  character: StarWarsCharacter;
+  character: StarWarsPeople;
 }) {
   const [homeworldData, setHomeworldData] = useState<HomeworldData | null>(
     null
