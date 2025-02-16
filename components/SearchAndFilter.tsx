@@ -21,8 +21,9 @@ export default function SearchAndFilter({
   const [selectedPlanet, setSelectedPlanet] = useState("");
 
   useEffect(() => {
-    if (selectedPlanet === "" && selectedMovie === "") {
-      handleDropdownsChange([]);
+    const hasDropdownValues = selectedPlanet !== "" || selectedMovie !== "";
+    if (!hasDropdownValues) {
+      handleDropdownsChange([], hasDropdownValues);
     }
     let currentPlanet, currentMovie;
 
@@ -42,11 +43,11 @@ export default function SearchAndFilter({
       const lookup = currentPlanet.residents.filter((resident) =>
         movieSet.has(resident),
       );
-      handleDropdownsChange(lookup);
+      handleDropdownsChange(lookup, hasDropdownValues);
     } else if (currentMovie) {
-      handleDropdownsChange(currentMovie.characters);
+      handleDropdownsChange(currentMovie.characters, hasDropdownValues);
     } else if (currentPlanet) {
-      handleDropdownsChange(currentPlanet.residents);
+      handleDropdownsChange(currentPlanet.residents, hasDropdownValues);
     }
   }, [selectedPlanet, selectedMovie, movies, planets, handleDropdownsChange]);
 
@@ -100,7 +101,6 @@ export default function SearchAndFilter({
     setSelectedMovie("");
     setSelectedPlanet("");
     setCharFilter("");
-    // need to reset the input here
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {

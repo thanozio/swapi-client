@@ -23,6 +23,7 @@ export default function Home() {
   const [pageCount, setPageCount] = useState(1);
   const [charFilter, setCharFilter] = useState("");
   const [peopleIdsFilter, setPeopleIdsFilter] = useState<(number | null)[]>([]);
+  const [hasDropdownsActive, setHasDropdownsActive] = useState(false);
 
   useEffect(() => {
     if (!showSpinner) return;
@@ -49,12 +50,13 @@ export default function Home() {
     let res = people;
     if (charFilter !== "") {
       res = res.filter((person) =>
-        person.name.toLowerCase().includes(charFilter.toLowerCase()),
+        person.name.toLowerCase().includes(charFilter.toLowerCase())
       );
     }
 
-    const fromPeopleArray: StarWarsPeople[] = [];
-    if (peopleIdsFilter.length > 0) {
+    if (hasDropdownsActive) {
+      const fromPeopleArray: StarWarsPeople[] = [];
+
       // I'm translating the character id from endpoint to the index that corresponds
       // to the full array of characters
       for (const id of peopleIdsFilter) {
@@ -63,14 +65,12 @@ export default function Home() {
           fromPeopleArray.push(people[id - 1]);
         }
       }
-    }
 
-    if (fromPeopleArray.length > 0) {
       res = res.filter((person) => fromPeopleArray.includes(person));
     }
 
     return res;
-  }, [people, charFilter, peopleIdsFilter]);
+  }, [people, charFilter, peopleIdsFilter, hasDropdownsActive]);
 
   useEffect(() => {
     if (filteredPeople.length > 0) {
@@ -89,19 +89,20 @@ export default function Home() {
   };
 
   const handleDropdownsChange = useCallback(
-    async (urls: string[]) => {
+    async (urls: string[], hasDropdownValues: boolean) => {
+      setHasDropdownsActive(hasDropdownValues);
       const ids = urls.map((url) => {
         const match = url.match(/(\d+)/);
         return match ? parseInt(match[1]) : null;
       });
       setPeopleIdsFilter(ids);
     },
-    [setPeopleIdsFilter],
+    [setPeopleIdsFilter]
   );
 
   const peopleForCurrentPage = filteredPeople.slice(
     (currentPage + 1) * 10 - 10,
-    (currentPage + 1) * 10,
+    (currentPage + 1) * 10
   );
 
   return (
