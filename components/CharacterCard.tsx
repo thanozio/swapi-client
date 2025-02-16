@@ -8,7 +8,7 @@ import CharacterModalData from "./CharacterModalData";
 import characterImages from "@/utils/images";
 import { StarWarsPeople } from "@/globalTypes";
 
-// Colors need to be inline for Tailwind to compile the classes 
+// Colors need to be inline for Tailwind to compile the classes
 // in order to be dynamically assigned
 const speciesColors: string[] = [
   "border-blue-500",
@@ -50,7 +50,6 @@ const speciesColors: string[] = [
   "border-gray-900",
 ];
 
-
 export default function CharacterCard({
   character,
   index,
@@ -60,51 +59,41 @@ export default function CharacterCard({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const currentImage = characterImages[index % 10];
-  const [error, setError] = useState<string | null>(null);
 
-// default color for human borders
-  let speciesColorIndex: number = 0; 
+  // default color for human borders
+  let speciesColorIndex: number = 0;
   const speciesIdMatch = character?.species[0]?.match(/(\d+)/) || null;
   if (speciesIdMatch !== null) {
     speciesColorIndex = Number(speciesIdMatch[1]);
   }
-
-  console.log("species color", speciesColorIndex);
-
   return (
     <>
-      {error ? (
-        <h2 className="text-red-500">Could not fetch data</h2>
-      ) : (
-        <>
-          <div
-            className={`text-center w-max-200 h-max-300 ${speciesColors[speciesColorIndex]} border-4 rounded-lg transition duration-300 ease-in-out hover:scale-110`}
-            onClick={() => setIsModalOpen(true)}
-          >
-            <h2>{character.name}</h2>
-            <Image
-              // I'd use this but they cache images aggressively, and ends up
-              // showing the same image multiple times!
-              // I'd rather grow the bundle size a bit by importing local images
-              // src={"https://picsum.photos/200/300/?random"}
-              src={currentImage}
-              alt={`Picture of ${name}.`}
-              width={200}
-              height={300}
-              priority={true}
-            />
-          </div>
-          <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-            <CharacterModalData character={character} />
-            <button
-              className="bg-black hover:bg-yellow-400 text-yellow-400 hover:text-black border-yellow-400 p-2 rounded-lg"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-          </Modal>
-        </>
-      )}
+      <div
+        className={`text-center w-max-200 h-max-300 ${speciesColors[speciesColorIndex]} border-4 rounded-lg transition duration-300 ease-in-out hover:scale-110`}
+        onClick={() => setIsModalOpen(true)}
+      >
+        <h2>{character.name}</h2>
+        <Image
+          // I'd use this but they cache images aggressively, and ends up
+          // showing the same image multiple times!
+          // I'd rather grow the bundle size a bit by importing local images
+          // src={"https://picsum.photos/200/300/?random"}
+          src={currentImage}
+          alt={`Picture of ${name}.`}
+          width={200}
+          height={300}
+          priority={true}
+        />
+      </div>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <CharacterModalData character={character} />
+        <button
+          className="bg-black hover:bg-yellow-400 text-yellow-400 hover:text-black border-yellow-400 p-2 rounded-lg"
+          onClick={() => setIsModalOpen(false)}
+        >
+          Close
+        </button>
+      </Modal>
     </>
   );
 }
