@@ -19,7 +19,6 @@ export interface StarWarsPeople {
   url: string;
 }
 
-
 export interface SearchAndFilterProps {
   charFilter: string;
   handleSearchChange: (searchValue: string) => void;

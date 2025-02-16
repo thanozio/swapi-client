@@ -1,4 +1,10 @@
-import { StarWarsApiPeopleResponse, StarWarsMoviesResponse, StarWarsPeople, StarWarsPlanets, StarWarsPlanetsResponse } from "@/globalTypes";
+import {
+  StarWarsApiPeopleResponse,
+  StarWarsMoviesResponse,
+  StarWarsPeople,
+  StarWarsPlanets,
+  StarWarsPlanetsResponse,
+} from "@/globalTypes";
 
 export async function fetchAllPlanets() {
   const planets: StarWarsPlanets[] = [];
@@ -19,7 +25,7 @@ export async function fetchAllPlanets() {
   }
 
   const fetchedPlanets = await Promise.all(
-    planetUrls.map((url) => fetch(url).then((data) => data.json()))
+    planetUrls.map((url) => fetch(url).then((data) => data.json())),
   );
 
   fetchedPlanets.forEach((res) => {
@@ -58,7 +64,7 @@ export async function getAllPeople(url: string): Promise<StarWarsPeople[]> {
 
   const people: StarWarsPeople[] = [];
   const fetchedPeople = await Promise.all(
-    peopleUrls.map((url) => fetch(url).then((data) => data.json()))
+    peopleUrls.map((url) => fetch(url).then((data) => data.json())),
   );
 
   fetchedPeople.forEach((res) => {

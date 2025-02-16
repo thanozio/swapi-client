@@ -97,7 +97,7 @@ export default function CharacterCard({
         <>
           <div
             className={`text-center w-max-200 h-max-300 ${speciesColors.get(
-              speciesName
+              speciesName,
             )} border-4 rounded-lg transition duration-300 ease-in-out hover:scale-110`}
             onClick={() => setIsModalOpen(true)}
           >

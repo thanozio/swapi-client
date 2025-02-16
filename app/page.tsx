@@ -13,9 +13,6 @@ import Footer from "@/components/Footer";
 
 import { getAllPeople } from "@/utils/fetchSwapiData";
 
-
-
-
 export default function Home() {
   const [people, setPeople] = useState<StarWarsPeople[]>([]);
   const [showSpinner, setShowSpinner] = useState(true);
@@ -52,7 +49,7 @@ export default function Home() {
     let res = people;
     if (charFilter !== "") {
       res = res.filter((person) =>
-        person.name.toLowerCase().includes(charFilter.toLowerCase())
+        person.name.toLowerCase().includes(charFilter.toLowerCase()),
       );
     }
 
@@ -91,18 +88,20 @@ export default function Home() {
     setCharFilter(searchValue);
   };
 
-  const handleDropdownsChange = useCallback(async (urls: string[]) => {
-    const ids = urls.map((url) => {
-      const match = url.match(/(\d+)/);
-      return match ? parseInt(match[1]) : null;
-    });
-    setPeopleIdsFilter(ids);
-  }, [setPeopleIdsFilter]);
-  
+  const handleDropdownsChange = useCallback(
+    async (urls: string[]) => {
+      const ids = urls.map((url) => {
+        const match = url.match(/(\d+)/);
+        return match ? parseInt(match[1]) : null;
+      });
+      setPeopleIdsFilter(ids);
+    },
+    [setPeopleIdsFilter],
+  );
 
   const peopleForCurrentPage = filteredPeople.slice(
     (currentPage + 1) * 10 - 10,
-    (currentPage + 1) * 10
+    (currentPage + 1) * 10,
   );
 
   return (

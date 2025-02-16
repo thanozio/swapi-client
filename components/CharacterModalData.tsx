@@ -15,7 +15,7 @@ export default function CharacterModalData({
   character: StarWarsPeople;
 }) {
   const [homeworldData, setHomeworldData] = useState<HomeworldData | null>(
-    null
+    null,
   );
   const [error, setError] = useState<string | null>(null);
   const { name, height, birth_year, mass, created, films, homeworld } =

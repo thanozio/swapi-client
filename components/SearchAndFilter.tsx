@@ -1,13 +1,12 @@
 "use client";
 
-import { SearchAndFilterProps, StarWarsMovie, StarWarsPlanets } from "@/globalTypes";
-import { fetchAllPlanets, fetchAllMovies } from "@/utils/fetchSwapiData";
 import {
-  ChangeEvent,
-  useEffect,
-  useState,
-} from "react";
-
+  SearchAndFilterProps,
+  StarWarsMovie,
+  StarWarsPlanets,
+} from "@/globalTypes";
+import { fetchAllPlanets, fetchAllMovies } from "@/utils/fetchSwapiData";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export default function SearchAndFilter({
   charFilter,
@@ -41,7 +40,7 @@ export default function SearchAndFilter({
     if (currentMovie && currentPlanet) {
       const movieSet = new Set(currentMovie.characters);
       const lookup = currentPlanet.residents.filter((resident) =>
-        movieSet.has(resident)
+        movieSet.has(resident),
       );
       handleDropdownsChange(lookup);
     } else if (currentMovie) {
