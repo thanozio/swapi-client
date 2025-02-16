@@ -1,81 +1,13 @@
 "use client";
 
+import { SearchAndFilterProps, StarWarsMovie, StarWarsPlanets } from "@/globalTypes";
+import { fetchAllPlanets, fetchAllMovies } from "@/utils/fetchSwapiData";
 import {
   ChangeEvent,
-  Dispatch,
-  SetStateAction,
   useEffect,
   useState,
 } from "react";
 
-interface SearchAndFilterProps {
-  charFilter: string;
-  handleSearchChange: (searchValue: string) => void;
-  handleDropdownsChange: (planetUrls: string[]) => void;
-  setCharFilter: Dispatch<SetStateAction<string>>;
-}
-
-interface StarWarsMovie {
-  title: string;
-  characters: string[];
-}
-
-interface StarWarsPlanets {
-  name: string;
-  residents: string[];
-}
-
-interface StarWarsPlanetsResponse {
-  count: number;
-  results: StarWarsPlanets[];
-}
-
-interface StarWarsMoviesResponse {
-  count: number;
-  results: StarWarsMovie[];
-}
-
-async function fetchAllPlanets(): Promise<StarWarsPlanets[]> {
-  const planets: StarWarsPlanets[] = [];
-  let planetPageCount: number;
-  const basePlanetsUrl = "https://swapi.dev/api/planets";
-  try {
-    const response = await fetch(basePlanetsUrl);
-    const data: StarWarsPlanetsResponse = await response.json();
-    const planetCount = data.count;
-    planetPageCount = Math.ceil(planetCount / 10);
-  } catch (error) {
-    throw error;
-  }
-
-  const planetUrls: string[] = [];
-  for (let i = 1; i <= planetPageCount; i++) {
-    planetUrls.push(`${basePlanetsUrl}?page=${i}`);
-  }
-
-  const fetchedPlanets = await Promise.all(
-    planetUrls.map((url) => fetch(url).then((data) => data.json()))
-  );
-
-  fetchedPlanets.forEach((res) => {
-    planets.push(...res.results);
-  });
-  return planets;
-}
-
-async function fetchAllMovies() {
-  const url = "https://swapi.dev/api/films";
-  try {
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`API Error: ${res.status} - ${res.statusText}`);
-    }
-    const data: StarWarsMoviesResponse = await res.json();
-    return data.results;
-  } catch (error) {
-    throw error;
-  }
-}
 
 export default function SearchAndFilter({
   charFilter,

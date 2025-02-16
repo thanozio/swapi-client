@@ -11,37 +11,10 @@ import { StarWarsPeople } from "@/globalTypes";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import Footer from "@/components/Footer";
 
-interface StarWarsApiPeopleResponse {
-  count: number;
-  results: StarWarsPeople[];
-  next: string | null;
-}
+import { getAllPeople } from "@/utils/fetchSwapiData";
 
-async function getAllPeople(url: string): Promise<StarWarsPeople[]> {
-  let data: StarWarsApiPeopleResponse;
-  const peopleUrls: string[] = [];
 
-  try {
-    const response = await fetch(url);
-    data = await response.json();
-    for (let page = 1; page <= Math.ceil(data.count / 10); page++) {
-      peopleUrls.push(`${url}?page=${page}`);
-    }
-  } catch (error) {
-    throw error;
-  }
 
-  const people: StarWarsPeople[] = [];
-  const fetchedPeople = await Promise.all(
-    peopleUrls.map((url) => fetch(url).then((data) => data.json()))
-  );
-
-  fetchedPeople.forEach((res) => {
-    people.push(...res.results);
-  });
-
-  return people;
-}
 
 export default function Home() {
   const [people, setPeople] = useState<StarWarsPeople[]>([]);
