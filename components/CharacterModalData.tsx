@@ -24,7 +24,7 @@ export default function CharacterModalData({
     character;
 
   useEffect(() => {
-    async function getSpecies() {
+    async function getHomeworldData() {
       try {
         // leveraging just the first value of the provided array to avoid mixing races up
         const res = await fetch(homeworld);
@@ -44,7 +44,7 @@ export default function CharacterModalData({
       }
     }
 
-    getSpecies();
+    getHomeworldData();
   }, [homeworld]);
 
   return (
@@ -63,9 +63,9 @@ export default function CharacterModalData({
       <hr />
       <div>
         <h2>Homeworld</h2>
-        <p>Name: {homeworldData?.name}</p>
-        <p>Terrain: {homeworldData?.terrain}</p>
-        <p>Climate: {homeworldData?.climate}</p>
+        <p>Name: {homeworldData?.name || "loading"}</p>
+        <p>Terrain: {homeworldData?.terrain || "loading"}</p>
+        <p>Climate: {homeworldData?.climate || "loading"}</p>
         <p>
           Population:{" "}
           {homeworldData?.population !== "unknown"
