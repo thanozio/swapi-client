@@ -114,6 +114,8 @@ export default function Home() {
     (currentPage + 1) * PEOPLE_PER_PAGE
   );
 
+  console.log("people are", peopleForCurrentPage);
+
   return (
     <div className="flex flex-col h-screen justify-between">
       <main className="flex flex-col items-center justify-center gap-10 mt-10">
@@ -133,7 +135,7 @@ export default function Home() {
               handleDropdownsChange={handleDropdownsChange}
               setCharFilter={setCharFilter}
             />
-            {!showSpinner && (
+            {!showSpinner && peopleForCurrentPage.length > 0 && (
               <ReactPaginate
                 previousLabel={currentPage === 0 ? "" : "previous"}
                 nextLabel={currentPage === pageCount - 1 ? "" : "next"}
@@ -161,14 +163,14 @@ export default function Home() {
               />
             )}
             <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
-              {peopleForCurrentPage &&
+              {peopleForCurrentPage.length > 0 ?
                 peopleForCurrentPage.map((character, index) => (
                   <CharacterCard
                     key={character.name}
                     character={character}
                     index={index}
                   />
-                ))}
+                )) : <p className="text-red-500 col-span-3 text-center">No characters found</p>}
             </div>
           </>
         )}
