@@ -135,9 +135,9 @@ export default function Home() {
             />
             {!showSpinner && (
               <ReactPaginate
-                previousLabel={"previous"}
+                previousLabel={currentPage === 0 ? "" : "previous"}
+                nextLabel={currentPage === pageCount - 1 ? "" : "next"}
                 forcePage={currentPage}
-                nextLabel={"next"}
                 breakLabel={"..."}
                 pageCount={pageCount}
                 marginPagesDisplayed={2}
@@ -146,13 +146,18 @@ export default function Home() {
                 containerClassName="flex gap-x-2 mb-4"
                 pageClassName="px-3 py-2 border rounded hover:bg-gray-200"
                 pageLinkClassName="text-white"
-                previousClassName="px-3 py-2 border rounded hover:bg-gray-200"
+                previousClassName={`px-3 py-2 border rounded hover:bg-gray-200 ${
+                  currentPage === 0 ? "hidden" : ""
+                }`}
                 previousLinkClassName="text-white"
-                nextClassName="px-3 py-2 border rounded hover:bg-gray-200"
+                nextClassName={`px-3 py-2 border rounded hover:bg-gray-200 ${
+                  currentPage === pageCount - 1 ? "hidden" : ""
+                }`}
                 nextLinkClassName="text-white"
                 breakClassName="px-3 py-2 border rounded"
                 breakLinkClassName="text-white"
                 activeClassName="bg-yellow-400"
+                renderOnZeroPageCount={null}
               />
             )}
             <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8">
